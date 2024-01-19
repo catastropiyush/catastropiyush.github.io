@@ -3,41 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Name - Academic Website</title>
+    <title>Piyush R. Maharana - Academic Website</title>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Courier New', sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
-            color: #333;
+            background-color: #f0e6f4; /* Lavender Purple background */
+            color: #503b67; /* Darker shade for text */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         header {
-            background-color: #007BFF;
+            background-color: ;
             color: #fff;
             text-align: center;
             padding: 30px 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
         }
-
-        header img {
+   
+header h1 {
+    margin: 0;
+    color: #503b67; /* Darker shade for header text */
+}
+        #profile-photo {
             border-radius: 50%;
             max-width: 150px;
             height: auto;
-        }
-
-        nav {
-            background-color: #333;
-            color: #fff;
-            padding: 15px 0;
-            text-align: center;
-        }
-
-        nav a {
-            color: #fff;
-            text-decoration: none;
-            margin: 0 15px;
-            font-weight: bold;
+            margin-right: 20px;
         }
 
         section {
@@ -46,19 +46,16 @@
             background-color: #fff;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            text-align: left;
         }
 
         h1, h2 {
             color: #007BFF;
         }
 
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        li {
-            margin-bottom: 10px;
+        p {
+            line-height: 1.6;
         }
 
         footer {
@@ -67,53 +64,89 @@
             padding: 10px;
             background-color: #333;
             color: #fff;
+            width: 100%;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+        }
+
+        /* New styles for the Publications section */
+        #publications {
+            margin: 20px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            text-align: left;
+        }
+
+        #publications h2 {
+            color: #007BFF;
+        }
+
+        #publications ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        #publications li {
+            margin-bottom: 10px;
+        }
+
+        #publications a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+
+        #publications a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
 
     <header>
-        <img src="https://github.com/catastropiyush/catastropiyush.github.io/blob/main/IMG-20221016-WA0037(1).jpg" alt="Your Photo">
-        <h1>Your Name</h1>
+        <h1>Piyush R. Maharana</h1>
     </header>
 
-    <nav>
-        <a href="#education">Education</a>
-        <a href="#affiliation">Affiliation</a>
-        <a href="#papers">Recent Papers</a>
-        <a href="#social">Social Media</a>
-    </nav>
+    <section>
+        <h2>About Me</h2>
+        <p>
+          I am currently working as a project assistant in CSIR-National Chemical Laboratory in Dr.Kavita Joshi's Lab where we are developing high entropy alloys for hydrogen storage at room temperature.
+     
+        </p>
 
-    <section id="education">
-        <h2>Education</h2>
-        <p>Your University, Degree, Year of Graduation</p>
+        <h2>Research Interests</h2>
+        <p>
+          Currently, I'm working as a Project Assistant at <a href="link-to-publication-1">CSIR-National Chemical Laboratory</a>, where I use Natural Language Processing to create databases for training hydrogen storage models.
+Simultaneously, I am delving into research on hydrogen storage, investigating advanced methods for storing and utilizing hydrogen as an energy carrier, with a keen eye on addressing challenges related to efficiency and safety.
+
+In my Master's thesis at Central University of Punjab, I studied the energy partionining of molecular hydrogen formation on interstellar dust grains using Quantum Dynamics. During my bachelor's, using a small radio telescope I did a HI-line scan of our Milky Way Galaxy and was able to determine the structure and the mass distribution of our galaxy.
+        </p>
+
+        <h2>Get in Touch</h2>
+        <p>
+            I’d love to connect – please email me :)
+        </p>
+
+        <h2>Background</h2>
+        <p>
+           Before joining NCL, I completed my masters in Computational Physics from Central University of Punjab and my bachelors in Physics from Delhi University.
+        </p>
     </section>
 
-    <section id="affiliation">
-        <h2>Affiliation</h2>
-        <p>Your Current Affiliation/Job Title</p>
-    </section>
-
-    <section id="papers">
-        <h2>Recent Papers</h2>
+    <!-- New Publications Section -->
+    <section id="publications">
+        <h2>Publications</h2>
         <ul>
-            <li><a href="#">Paper Title 1</a></li>
-            <li><a href="#">Paper Title 2</a></li>
-            <!-- Add more papers as needed -->
-        </ul>
-    </section>
-
-    <section id="social">
-        <h2>Social Media</h2>
-        <ul>
-            <li><a href="https://twitter.com/your_twitter_profile" target="_blank">Twitter</a></li>
-            <li><a href="https://linkedin.com/in/your_linkedin_profile" target="_blank">LinkedIn</a></li>
-            <!-- Add more social media profiles as needed -->
+            <li><a href="https://iopscience.iop.org/article/10.1088/1742-6596/2267/1/012053/meta">Structure and kinematics of the Milky Way galaxy using atomic hydrogen</a></li>
+            <li><a href="https://ijirt.org/Article?manuscript=152872">Study of synchrotron emission of Crab Nebula using Spectral index measurement</a></li>
+            <!-- Add more publication entries as needed -->
         </ul>
     </section>
 
     <footer>
-        <p>&copy; 2024 Your Name. All rights reserved.</p>
+        <p>&copy; 2024 Amanda Bertsch. All rights reserved.</p>
     </footer>
 
 </body>

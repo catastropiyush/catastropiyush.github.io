@@ -1,175 +1,113 @@
 <!DOCTYPE html>
+<!--
+    Plain-Academic by Vasilios Mavroudis
+    Released under the Simplified BSD License/FreeBSD (2-clause) License.
+    https://github.com/mavroudisv/plain-academic
+-->
+
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Piyush R. Maharana - Academic Website</title>
-    <style>
-        body {
-            font-family: 'Courier New', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #FFDD95; /* Lavender Purple background */
-            color: #000000; /* Darker shade for text */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        header {
-            background-color:#FFDD95 ;
-            color: #fff;
-            text-align: center;
-            padding: 30px 0;
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom-left-radius: 20px;
-            border-bottom-right-radius: 20px;
-        }
-   
-header h1 {
-    margin: 0;
-    color: #C21292; /* Darker shade for header text */
-}
-        #profile-photo {
-            border-radius: 50%;
-            max-width: 150px;
-            height: auto;
-            margin-right: 20px;
-        }
-
-        section {
-            margin: 20px;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 80%;
-            text-align: left;
-        }
-
-        h1, h2 {
-            color: #FF407D;
-        }
-
-        p {
-            line-height: 1.6;
-        }
-
-        footer {
-            margin-top: 20px;
-            text-align: center;
-            padding: 10px;
-            background-color: #333;
-            color: #fff;
-            width: 100%;
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
-        }
-
-        /* New styles for the Publications section */
-        #publications {
-            margin: 20px;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 80%;
-            text-align: left;
-        }
-
-        #publications h2 {
-            color: #007BFF;
-        }
-
-        #publications ul {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        #publications li {
-            margin-bottom: 10px;
-        }
-
-        #publications a {
-            color: #007BFF;
-            text-decoration: none;
-        }
-
-        #publications a:hover {
-            text-decoration: underline;
-        }
-    </style>
+  <title>John Doe</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+  <link href='https://fonts.googleapis.com/css?family=Oswald:700' rel='stylesheet' type='text/css'>
 </head>
 <body>
 
-    <header>
-        <h1>Piyush R. Maharana</h1>
-      <h2>NLP|ML|Hydrogen Storage</h2>
-    </header>
 
-    <section>
-        <h2>About Me</h2>
-        <p>
-          Project assistant at CSIR-National Chemical Laboratory in Dr.Kavita Joshi's Lab where we are developing high entropy alloys for hydrogen storage at room temperature.
-     
-        </p>
-        <h2>Research Interests</h2>
-        <p>
-          Currently, I'm working as a Project Assistant at <a href="http://academic.ncl.res.in/k.joshi/group-memebers">CSIR-National Chemical Laboratory</a>, where I use Natural Language Processing and Large Language Models to create databases for training hydrogen storage models.
-Simultaneously, I am researching on hydrogen storage, investigating advanced methods for storing and utilizing hydrogen as an energy carrier, with a keen eye on addressing challenges related to efficiency and safety.<br>
+<!-- Navigation -->
+	<nav class="navbar navbar-inverse navbar-static-top" role="navigation">
+	  <div class="container">
+		<div class="navbar-header">
+		  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+		</div>
 
-In my Master's thesis at Central University of Punjab, I studied the energy partionining of molecular hydrogen formation on interstellar dust grains using Quantum Dynamics. During my bachelor's, using a small radio telescope I did a HI-line scan of our Milky Way Galaxy and was able to determine the structure and the mass distribution of our galaxy.<a href="https://piyushmaharanacats.blogspot.com/2021/11/arms-of-milky-way.html">Blog</a>
-        </p>
-
-        <h2>Get in Touch</h2>
-        <p>
-            I’d love to connect :)
-          <ul>
-            <li>Email: pr.maharana@ncl.res.in</li>
-            <li><a href="https://github.com/catastropiyush">Github</a></li>
-            <li><a href="https://www.linkedin.com/in/piyush-ranjan-maharana-1b14b2197/">Linkedin</a></li>
-            
-            
-        </ul>
-        </p>
-
-        <h2>Background</h2>
-        <p>
-           Before joining NCL, I completed my masters in Computational Physics from Central University of Punjab and my bachelors in Physics from Delhi University.
-        </p>
-          
-      <h2>Academic Projects </h2>
-      <ul>
-          <li><b>Master's Thesis   :</b>Quantum Dynamics of H2 formation on interstellar dust grains</li>
-      <li><b>Bachelor's Thesis :</b>Spiral Structure and Dynamics of the Milky Way Galaxy</li>
-            </ul>
-    <h2>What I do in my free time? </h2>
-      Volunteering in a NGO to teach kids.<br>
-      Reading about the decipherment of the Maya Script.<br>
-      Learning to recite the Epic of Gilgamesh.<br>
-      Speed running Pokemon Red.
-      <br><br>
-      If you have suggestions do tell me :)
-
-    </section>
-    <!-- New Publications Section -->
-    <section id="publications">
-        <h2>Publications</h2>
-        <ul>
-            <li><a href="https://iopscience.iop.org/article/10.1088/1742-6596/2267/1/012053/meta">Structure and kinematics of the Milky Way galaxy using atomic hydrogen</a></li>
-            <li><a href="https://ijirt.org/Article?manuscript=152872">Study of synchrotron emission of Crab Nebula using Spectral index measurement</a></li>
-            <!-- Add more publication entries as needed -->
-        </ul>
-    </section>
+		<!-- Collect the nav links, forms, and other content for toggling -->
+		<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+		  <ul class="nav navbar-nav">
+				  <li><a href="index.html">Home</a></li>
+				  <li><a href="#">Projects</a></li>
+				  <li><a href="#publications">Publications</a></li> 
+				  <li><a href="#">CV</a></li> 
+		  </ul>
+		</div>
+	  </div>
+	</nav>
   
-      </section>
+  <!-- Page Content -->
+    <div class="container">
 
-    <footer>
-        <p>&copy; 2024 Piyush Maharana. All rights reserved.</p>
-    </footer>
+        <div class="row">
 
+            <!-- Entries Column -->
+            <div class="col-md-8" style="height: 100vh;">
+                
+                <!-- Main Image -->
+                <img class="img-responsive" src="photo.gif" alt=""><br>
+                
+                <div style="margin-top:3%; text-align:justify;">                
+					<p>Lorem ipsum dolor sit amet, consectetur adipiscing <a href="#">elit</a>, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+					
+					<p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+					
+					<p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum</p>
+                </div>
+            </div> 
+
+            <!-- Contact Info on the Sidebar -->
+            <div class="col-md-4">
+                <div style="font-family: 'Oswald', sans-serif; font-size: 32px;"><b>John Doe</b></div><br>
+                <p><b>john at doe.com</b><br>
+                <p>Random Department<br>
+                University of Randomness<br>
+                Street<br>
+                City <br>
+                Country<br>
+                </p>
+            </div>
+            
+            
+            <!-- Links on the Sidebar -->
+            <div class="col-md-4" style="margin-top:2%">
+              <dd><a href="#">Google Scholar</a></dd> 
+              <dd><a href="#">Twitter</a></dd>
+              <dd><a href="#">LinkedIn</a></dd>
+            </div>
+            
+            
+            <!-- Publications -->
+            <div class="col-md-8" style="height: 100vh;">    
+                <h2 id="publications">Publications</h2>
+                
+                <strong>Peer-reviewed</strong><br/>
+                <ul>
+                <li class="paper" words="add, your, keywords, here"><a href="#">Full title</a> Names of the authors</li>
+                </ul>
+            
+                <strong>Technical Reports</strong><br/>
+                <ul>
+                <li class="paper" words="add, your, keywords, here"><a href="#">Full title</a>. Details of the report</li>
+                </ul>
+            </div>
+
+            
+        </div>
+
+
+    </div>
+    <!-- /.container -->
+    
+    <!-- Other people may like it too! -->
+    <a style="color:#b5bec9;font-size:0.8em; float:right;" href="https://github.com/mavroudisv/plain-academic">Plain Academic</a> 
+    
 </body>
+
 </html>

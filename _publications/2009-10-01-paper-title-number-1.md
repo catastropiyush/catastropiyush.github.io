@@ -5,5 +5,5 @@ category: manuscripts
 date: 2021
 venue: 'Journal 1'
 paperurl: 'https://iopscience.iop.org/article/10.1088/1742-6596/2267/1/012053/meta'
-citation: 'Your Name, You. (2009). &quot;Paper Title Number 1.&quot; <i>Journal 1</i>. 1(1).'
+citation: 'V Batra and P R Maharana 2022 J. Phys.: Conf. Ser. 2267 012053'
 ---

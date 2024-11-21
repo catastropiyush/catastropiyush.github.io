@@ -4,218 +4,145 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Piyush R. Maharana - Academic Website</title>
-    <style>
-        body {
-            font-family: 'Courier New', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #FFDD95; /* Lavender Purple background */
-            color: #000000; /* Darker shade for text */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        header {
-            background-color:#FFDD95 ;
-            color: #fff;
-            text-align: center;
-            padding: 30px 0;
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom-left-radius: 20px;
-            border-bottom-right-radius: 20px;
-        }
-
-        header h1 {
-            margin: 0;
-            color: #C21292; /* Darker shade for header text */
-        }
-
-        #profile-photo {
-            border-radius: 50%;
-            max-width: 150px;
-            height: auto;
-            margin-right: 20px;
-        }
-
-        section {
-            margin: 20px;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 80%;
-            text-align: left;
-        }
-
-        h1, h2 {
-            color: #FF407D;
-        }
-
-        p {
-            line-height: 1.6;
-        }
-
-        footer {
-            margin-top: 20px;
-            text-align: center;
-            padding: 10px;
-            background-color: #333;
-            color: #fff;
-            width: 100%;
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
-        }
-
-        /* New styles for the Publications section */
-        #publications {
-            margin: 20px;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 80%;
-            text-align: left;
-        }
-
-        #publications h2 {
-            color: #007BFF;
-        }
-
-        #publications ul {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        #publications li {
-            margin-bottom: 10px;
-        }
-
-        #publications a {
-            color: #007BFF;
-            text-decoration: none;
-        }
-
-        #publications a:hover {
-            text-decoration: underline;
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.16/tailwind.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
 </head>
-<body>
-
-    <header>
-        <h1>Piyush R. Maharana</h1>
-        <h2>NLP|ML|Hydrogen Storage</h2>
+<body class="font-sans bg-gray-100">
+    <header class="bg-gray-800 text-white py-8 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center">
+            <div>
+                <img src="IMG-20221016-WA0037(1).jpg" alt="Description of the image" class="rounded-full h-20 w-20 mr-4">
+                <h1 class="text-2xl font-bold">Piyush R. Maharana</h1>
+                <h2 class="text-gray-400">NLP | ML | Hydrogen Storage</h2>
+            </div>
+            <nav>
+                <ul class="flex space-x-4">
+                    <li><a href="#about" class="hover:text-gray-300">About</a></li>
+                    <li><a href="#research" class="hover:text-gray-300">Research</a></li>
+                    <li><a href="#contact" class="hover:text-gray-300">Contact</a></li>
+                    <li><a href="#publications" class="hover:text-gray-300">Publications</a></li>
+                </ul>
+            </nav>
+        </div>
     </header>
 
-    <section>
-        <h2>About Me</h2>
-        <p>
-            Project assistant at CSIR-National Chemical Laboratory in Dr.Kavita Joshi's Lab where we are developing high entropy alloys for hydrogen storage at room temperature.
-        </p>
-        <h2>Research Interests</h2>
-        <p>
-            Currently, I'm working as a Project Assistant at <a href="http://academic.ncl.res.in/k.joshi/group-memebers">CSIR-National Chemical Laboratory</a>, where I use Natural Language Processing and Large Language Models to create databases for training hydrogen storage models.
-            Simultaneously, I am researching on hydrogen storage, investigating advanced methods for storing and utilizing hydrogen as an energy carrier, with a keen eye on addressing challenges related to efficiency and safety.<br>
-            In my Master's thesis at Central University of Punjab, I studied the energy partionining of molecular hydrogen formation on interstellar dust grains using Quantum Dynamics. During my bachelor's, using a small radio telescope I did a HI-line scan of our Milky Way Galaxy and was able to determine the structure and the mass distribution of our galaxy.<a href="https://piyushmaharanacats.blogspot.com/2021/11/arms-of-milky-way.html">Blog</a>
-        </p>
+    <main class="container mx-auto my-8 px-4">
+        <section id="about" class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">About Me</h2>
+            <p class="text-gray-600 leading-relaxed">
+                Project assistant at CSIR-National Chemical Laboratory in Dr.Kavita Joshi's Lab where we are developing high entropy alloys for hydrogen storage at room temperature.
+            </p>
+        </section>
 
-        <h2>Get in Touch</h2>
-        <p>
-            I'd love to connect :)
-            <ul>
-                <li>Email: pr.maharana@ncl.res.in</li>
-                <li>Phone: +91-1234567890</li>
-                <li><a href="https://github.com/catastropiyush">Github</a></li>
-                <li><a href="https://www.linkedin.com/in/piyush-ranjan-maharana-1b14b2197/">Linkedin</a></li>
+        <section id="research" class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">Research Interests</h2>
+            <p class="text-gray-600 leading-relaxed">
+                Currently, I'm working as a Project Assistant at <a href="http://academic.ncl.res.in/k.joshi/group-memebers" class="text-blue-500 hover:underline">CSIR-National Chemical Laboratory</a>, where I use Natural Language Processing and Large Language Models to create databases for training hydrogen storage models.
+                Simultaneously, I am researching on hydrogen storage, investigating advanced methods for storing and utilizing hydrogen as an energy carrier, with a keen eye on addressing challenges related to efficiency and safety.
+            </p>
+            <p class="text-gray-600 leading-relaxed">
+                In my Master's thesis at Central University of Punjab, I studied the energy partionining of molecular hydrogen formation on interstellar dust grains using Quantum Dynamics. During my bachelor's, using a small radio telescope I did a HI-line scan of our Milky Way Galaxy and was able to determine the structure and the mass distribution of our galaxy. <a href="https://piyushmaharanacats.blogspot.com/2021/11/arms-of-milky-way.html" class="text-blue-500 hover:underline">Blog</a>
+            </p>
+        </section>
+
+        <section id="contact" class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">Get in Touch</h2>
+            <p class="text-gray-600 leading-relaxed">
+                I'd love to connect :)
+            </p>
+            <ul class="space-y-2 mt-4">
+                <li><i class="fas fa-envelope text-gray-500 mr-2"></i> pr.maharana@ncl.res.in</li>
+                <li><i class="fas fa-phone text-gray-500 mr-2"></i> +91-1234567890</li>
+                <li><a href="https://github.com/catastropiyush" class="text-blue-500 hover:underline"><i class="fab fa-github text-gray-500 mr-2"></i> Github</a></li>
+                <li><a href="https://www.linkedin.com/in/piyush-ranjan-maharana-1b14b2197/" class="text-blue-500 hover:underline"><i class="fab fa-linkedin text-gray-500 mr-2"></i> Linkedin</a></li>
             </ul>
-        </p>
+        </section>
 
-        <h2>Background</h2>
-        <p>
-            Before joining NCL, I completed my masters in Computational Physics from Central University of Punjab and my bachelors in Physics from Delhi University.
-        </p>
+        <section id="background" class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">Background</h2>
+            <p class="text-gray-600 leading-relaxed">
+                Before joining NCL, I completed my masters in Computational Physics from Central University of Punjab and my bachelors in Physics from Delhi University.
+            </p>
+        </section>
 
-        <h2>Academic Projects</h2>
-        <ul>
-            <li><b>Master's Thesis   :</b>Quantum Dynamics of H2 formation on interstellar dust grains</li>
-            <li><b>Bachelor's Thesis :</b>Spiral Structure and Dynamics of the Milky Way Galaxy</li>
-        </ul>
+        <section id="projects" class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">Academic Projects</h2>
+            <ul class="space-y-2">
+                <li><b>Master's Thesis:</b> Quantum Dynamics of H2 formation on interstellar dust grains</li>
+                <li><b>Bachelor's Thesis:</b> Spiral Structure and Dynamics of the Milky Way Galaxy</li>
+            </ul>
+        </section>
 
-        <h2>What I do in my free time?</h2>
-        Volunteering in a NGO to teach kids.<br>
-        Reading about the decipherment of the Maya Script.<br>
-        Learning to recite the Epic of Gilgamesh.<br>
-        Speed running Pokemon Red.
-        <br><br>
-        If you have suggestions do tell me :)
+        <section id="freetime" class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">What I do in my free time?</h2>
+            <p class="text-gray-600 leading-relaxed">
+                Volunteering in a NGO to teach kids.<br>
+                Reading about the decipherment of the Maya Script.<br>
+                Learning to recite the Epic of Gilgamesh.<br>
+                Speed running Pokemon Red.
+            </p>
+            <p class="text-gray-600 leading-relaxed mt-4">
+                If you have suggestions do tell me :)
+            </p>
+        </section>
 
-    </section>
+        <section id="awards" class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">Awards and Achievements</h2>
+            <ul class="space-y-2">
+                <li>Participated in Google Summer of Code 2022</li>
+            </ul>
+        </section>
 
-    <!-- New Awards and Achievements Section -->
-    <section>
-        <h2>Awards and Achievements</h2>
-        <ul>
-            <li>CSIR-JRF Fellowship (2022-present)</li>
-            <li>Best Poster Presentation Award, NCNST 2023</li>
-            <li>Participated in Google Summer of Code 2022</li>
-        </ul>
-    </section>
+        <section id="skills" class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">Skills</h2>
+            <ul class="space-y-2">
+                <li>Programming: Python, C++, MATLAB</li>
+                <li>Machine Learning: TensorFlow, PyTorch, scikit-learn</li>
+                <li>Natural Language Processing: NLTK, spaCy, Hugging Face Transformers</li>
+                <li>Data Analysis: Pandas, NumPy, Matplotlib</li>
+                <li>Version Control: Git, GitHub</li>
+            </ul>
+        </section>
 
-    <!-- New Skills Section -->
-    <section>
-        <h2>Skills</h2>
-        <ul>
-            <li>Programming: Python, C++, MATLAB</li>
-            <li>Machine Learning: TensorFlow, PyTorch, scikit-learn</li>
-            <li>Natural Language Processing: NLTK, spaCy, Hugging Face Transformers</li>
-            <li>Data Analysis: Pandas, NumPy, Matplotlib</li>
-            <li>Version Control: Git, GitHub</li>
-        </ul>
-    </section>
+        <section id="certifications" class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">Certifications and Courses</h2>
+            <ul class="space-y-2">
+                <li>Machine Learning Specialization, Coursera</li>
+                <li>Natural Language Processing Specialization, Coursera</li>
+                <li>Deep Learning Specialization, Coursera</li>
+                <li>Quantum Computing for the Curious, Qiskit</li>
+            </ul>
+        </section>
 
-    <!-- New Certifications and Courses Section -->
-    <section>
-        <h2>Certifications and Courses</h2>
-        <ul>
-            <li>Machine Learning Specialization, Coursera</li>
-            <li>Natural Language Processing Specialization, Coursera</li>
-            <li>Deep Learning Specialization, Coursera</li>
-            <li>Quantum Computing for the Curious, Qiskit</li>
-        </ul>
-    </section>
+        <section id="publications" class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">Publications</h2>
+            <ul class="space-y-4">
+                <li>
+                    <a href="https://iopscience.iop.org/article/10.1088/1742-6596/2267/1/012053/meta" class="text-blue-500 hover:underline">
+                        Structure and kinematics of the Milky Way galaxy using atomic hydrogen
+                    </a>
+                    <p class="text-gray-600">Journal of Physics: Conference Series, 2022</p>
+                </li>
+                <li>
+                    <a href="https://ijirt.org/Article?manuscript=152872" class="text-blue-500 hover:underline">
+                        Study of synchrotron emission of Crab Nebula using Spectral index measurement
+                    </a>
+                    <p class="text-gray-600">International Journal of Innovative Research in Technology, 2021</p>
+                </li>
+                <li>
+                    <a href="https://www.nature.com/articles/s41598-023-27901-x" class="text-blue-500 hover:underline">
+                        High-entropy alloys for efficient hydrogen storage at ambient conditions
+                    </a>
+                    <p class="text-gray-600">Scientific Reports, 2023 (Accepted)</p>
+                </li>
+            </ul>
+        </section>
+    </main>
 
-    <!-- Updated Publications Section -->
-    <section id="publications">
-        <h2>Publications</h2>
-        <ul>
-            <li>
-                <a href="https://iopscience.iop.org/article/10.1088/1742-6596/2267/1/012053/meta">
-                    Structure and kinematics of the Milky Way galaxy using atomic hydrogen
-                </a>
-                <p>Journal of Physics: Conference Series, 2022</p>
-            </li>
-            <li>
-                <a href="https://ijirt.org/Article?manuscript=152872">
-                    Study of synchrotron emission of Crab Nebula using Spectral index measurement
-                </a>
-                <p>International Journal of Innovative Research in Technology, 2021</p>
-            </li>
-            <li>
-                <a href="https://www.nature.com/articles/s41598-023-27901-x">
-                    High-entropy alloys for efficient hydrogen storage at ambient conditions
-                </a>
-                <p>Scientific Reports, 2023 (Accepted)</p>
-            </li>
-        </ul>
-    </section>
-
-    <footer>
-        <p>&copy; 2024 Piyush Maharana. All rights reserved.</p>
+    <footer class="bg-gray-800 text-white py-4 mt-8">
+        <div class="container mx-auto text-center">
+            <p>&copy; 2024 Piyush Maharana. All rights reserved.</p>
+        </div>
     </footer>
-
 </body>
 </html>

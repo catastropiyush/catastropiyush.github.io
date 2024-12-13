@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>RDKit Reaction SMILES Analyzer</title>
+    <script src="https://unpkg.com/@rdkit/rdkit/dist/RDKit_minimal.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .molecule-container {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .molecule-box {
+            text-align: center;
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        #reaction-input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            margin: 10px 0;
+        }
+        button {
+            margin: 0 5px;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #substruct-section {
+            margin-top: 20px;
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        #debug-info {
+            background-color: #f0f0f0;
+            padding: 10px;
+            margin-top: 10px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>RDKit Reaction SMILES Analyzer</h1>
+    
+    <input 
+        type="text" 
+        id="reaction-input" 
+        value="C1[C@H](C)C[C@H](Cl)C1.[OH-]>>C1[C@H](C)C[C@@H](O)C1.[Cl-]"
+        placeholder="Enter Reaction SMILES or Single SMILES"
+    >
+    
+    <div class="btn-group">
+        <button onclick="analyzeReaction()">Analyze Reaction</button>
+        <button onclick="toggleSubstructureMode()">Toggle Substructure Mode</button>
+    </div>
+    
+    <div id="reaction-components">
+        <div class="molecule-container" id="reactants-container"></div>
+        <div class="molecule-container" id="products-container"></div>
+    </div>
+    
+    <div id="reaction-info"></div>
+    
+    <div id="substruct-section" style="display: none;">
+        <h3>Substructure Matching</h3>
+        <input 
+            type="text" 
+            id="smarts-input" 
+            placeholder="Enter SMARTS pattern for substructure matching"
+        >
+        <button onclick="matchSubstructure()">Match Substructure</button>
+        <div id="substruct-results"></div>
+    </div>
+    
+    <div id="debug-info"></div>
+
+    <script>
+        let RDKitModule;
+        let substructureModeEnabled = false;
+
+        // Initialize RDKit module
+        window.initRDKitModule().then(function (RDKit) {
+            RDKitModule = RDKit;
+            console.log("RDKit version: " + RDKit.version());
+            
+            // Initial analysis
+            analyzeReaction();
+        }).catch((error) => {
+            console.error("RDKit module loading failed:", error);
+        });
+
+        function toggleSubstructureMode() {
+            const substructSection = document.getElementById('substruct-section');
+            substructureModeEnabled = !substructureModeEnabled;
+            substructSection.style.display = substructureModeEnabled ? 'block' : 'none';
+        }
+
+        function matchSubstructure() {
+            const reactantsContainer = document.getElementById('reactants-container');
+            const productsContainer = document.getElementById('products-container');
+            const smartsPattern = document.getElementById('smarts-input').value;
+            const substructResults = document.getElementById('substruct-results');
+
+            // Clear previous results
+            substructResults.innerHTML = '';
+
+            try {
+                // Create query molecule from SMARTS
+                const qmol = RDKitModule.get_qmol(smartsPattern);
+
+                // Function to check and highlight matching molecules
+                function checkSubstructureMatch(container) {
+                    const matchedMolecules = [];
+                    const moleculeDivs = container.getElementsByClassName('molecule-box');
+                    
+                    for (let i = 0; i < moleculeDivs.length; i++) {
+                        const molSVG = moleculeDivs[i].getAttribute('data-smiles');
+                        const mol = RDKitModule.get_mol(molSVG);
+                        
+                        const mdetails = mol.get_substruct_match(qmol);
+                        
+                        if (mdetails) {
+                            // Highlight matched molecule
+                            const matchedSVG = mol.get_svg_with_highlights(mdetails);
+                            moleculeDivs[i].innerHTML = `
+                                <p>Matched Molecule</p>
+                                ${matchedSVG}
+                            `;
+                            matchedMolecules.push(molSVG);
+                        }
+                    }
+
+                    return matchedMolecules;
+                }
+
+                // Check reactants and products
+                const matchedReactants = checkSubstructureMatch(reactantsContainer);
+                const matchedProducts = checkSubstructureMatch(productsContainer);
+
+                // Display substructure matching results
+                substructResults.innerHTML = `
+                    <h4>Substructure Match Results</h4>
+                    <p><strong>SMARTS Pattern:</strong> ${smartsPattern}</p>
+                    <p><strong>Matched Reactants:</strong> ${matchedReactants.length > 0 ? matchedReactants.join(', ') : 'None'}</p>
+                    <p><strong>Matched Products:</strong> ${matchedProducts.length > 0 ? matchedProducts.join(', ') : 'None'}</p>
+                `;
+
+            } catch (error) {
+                console.error('Substructure Matching Error:', error);
+                substructResults.innerHTML = `
+                    <p style="color: red;">
+                        Error in substructure matching: ${error.message}
+                    </p>
+                `;
+            }
+        }
+
+        function analyzeReaction() {
+            const reactionInput = document.getElementById('reaction-input').value;
+            const reactantsContainer = document.getElementById('reactants-container');
+            const productsContainer = document.getElementById('products-container');
+            const reactionInfoDiv = document.getElementById('reaction-info');
+            const debugInfoDiv = document.getElementById('debug-info');
+
+            // Clear previous results
+            reactantsContainer.innerHTML = '';
+            productsContainer.innerHTML = '';
+            reactionInfoDiv.innerHTML = '';
+            debugInfoDiv.innerHTML = '';
+
+            try {
+                // Split reaction SMILES
+                const parts = reactionInput.split('>>');
+                const isReaction = parts.length > 1;
+
+                // Determine components based on number of '>>'
+                let reactants = [];
+                let products = [];
+
+                if (isReaction) {
+                    // Multiple component reaction
+                    const reactantParts = parts[0].split('.');
+                    const productParts = parts[1].split('.');
+
+                    reactants = reactantParts;
+                    products = productParts;
+                } else {
+                    // Single molecule input
+                    reactants = [reactionInput];
+                    products = [];
+                }
+
+                // Render reactants
+                reactants.forEach((smiles, index) => {
+                    const mol = RDKitModule.get_mol(smiles);
+                    if (mol && mol.is_valid()) {
+                        const svg = mol.get_svg();
+                        const div = document.createElement('div');
+                        div.className = 'molecule-box';
+                        div.innerHTML = `
+                            <p>Reactant ${index + 1}</p>
+                            ${svg}
+                            <p>${smiles}</p>
+                        `;
+                        div.setAttribute('data-smiles', smiles);
+                        reactantsContainer.appendChild(div);
+                    }
+                });
+
+                // Render products
+                products.forEach((smiles, index) => {
+                    const mol = RDKitModule.get_mol(smiles);
+                    if (mol && mol.is_valid()) {
+                        const svg = mol.get_svg();
+                        const div = document.createElement('div');
+                        div.className = 'molecule-box';
+                        div.innerHTML = `
+                            <p>Product ${index + 1}</p>
+                            ${svg}
+                            <p>${smiles}</p>
+                        `;
+                        div.setAttribute('data-smiles', smiles);
+                        productsContainer.appendChild(div);
+                    }
+                });
+
+                // Reaction information
+                reactionInfoDiv.innerHTML = `
+                    <h3>Reaction Analysis</h3>
+                    <p><strong>Input:</strong> ${reactionInput}</p>
+                    <p><strong>Reaction Type:</strong> ${isReaction ? 'Multi-component Reaction' : 'Single Molecule'}</p>
+                    <p><strong>Reactants:</strong> ${reactants.length}</p>
+                    <p><strong>Products:</strong> ${products.length}</p>
+                `;
+
+                // Debug information
+                debugInfoDiv.innerHTML = `
+                    <h3>Debug Information</h3>
+                    <p><strong>Reactants:</strong> ${JSON.stringify(reactants)}</p>
+                    <p><strong>Products:</strong> ${JSON.stringify(products)}</p>
+                `;
+
+            } catch (error) {
+                console.error('Reaction Analysis Error:', error);
+                reactionInfoDiv.innerHTML = `
+                    <p style="color: red;">
+                        Error in reaction analysis: ${error.message}
+                    </p>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Moondream Image Analyzer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body class="bg-gray-100 p-6">
+    <div class="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-6">
+        <h1 class="text-2xl font-bold mb-4 text-center">Moondream Image Analyzer</h1>
+        
+        <!-- API Key Input Section -->
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+            <div class="flex items-center">
+                <svg class="w-6 h-6 text-yellow-600 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 11-2 0 1 1 0 012 0zm-1 4a1 1 0 011 1v3a1 1 0 11-2 0v-3a1 1 0 011-1z" clip-rule="evenodd" />
+                </svg>
+                <div>
+                    <h2 class="font-semibold text-yellow-800">Enter Your Moondream API Key</h2>
+                    <p class="text-yellow-700 text-sm">Your API key is required to use the image analysis features.</p>
+                </div>
+            </div>
+            <div class="mt-3">
+                <input 
+                    type="password" 
+                    id="apiKeyInput" 
+                    placeholder="sk-moon-xxxxxxxxxxxxxxxxxxxxxxxx" 
+                    class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-300"
+                >
+                <div class="flex items-center mt-2">
+                    <input 
+                        type="checkbox" 
+                        id="showApiKey" 
+                        class="mr-2"
+                    >
+                    <label for="showApiKey" class="text-sm text-gray-600">Show API Key</label>
+                </div>
+                <p class="text-xs text-red-600 mt-1">
+                    ⚠️ Never share your API key publicly. Keep it confidential.
+                </p>
+            </div>
+        </div>
+        
+        <div class="grid md:grid-cols-2 gap-4">
+            <!-- Image Upload Section -->
+            <div class="bg-gray-50 p-4 rounded">
+                <input 
+                    type="file" 
+                    id="imageUpload" 
+                    accept="image/*" 
+                    class="block w-full text-sm text-gray-500 
+                    file:mr-4 file:py-2 file:px-4
+                    file:rounded-full file:border-0
+                    file:text-sm file:font-semibold
+                    file:bg-blue-50 file:text-blue-700
+                    hover:file:bg-blue-100"
+                >
+                <img id="imagePreview" class="mt-4 hidden max-h-[400px] object-contain" alt="Image Preview">
+            </div>
+            
+            <!-- Analysis Controls -->
+            <div class="bg-gray-50 p-4 rounded">
+                <div class="mb-4">
+                    <button 
+                        id="getCaptionBtn" 
+                        class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 mb-2 disabled:opacity-50"
+                        disabled
+                    >
+                        Get Image Caption
+                    </button>
+                </div>
+                
+                <div class="mb-4">
+                    <input 
+                        type="text" 
+                        id="questionInput" 
+                        placeholder="Ask a question about the image" 
+                        class="w-full p-2 border rounded mb-2"
+                        disabled
+                    >
+                    <button 
+                        id="queryBtn" 
+                        class="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600 disabled:opacity-50"
+                        disabled
+                    >
+                        Ask Question
+                    </button>
+                </div>
+                
+                <!-- Results Display -->
+                <div 
+                    id="resultsContainer" 
+                    class="mt-4 p-3 bg-gray-100 rounded max-h-64 overflow-y-auto"
+                >
+                    <p class="text-gray-500">Results will appear here...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const apiKeyInput = document.getElementById('apiKeyInput');
+        const showApiKeyCheckbox = document.getElementById('showApiKey');
+        const imageUpload = document.getElementById('imageUpload');
+        const imagePreview = document.getElementById('imagePreview');
+        const resultsContainer = document.getElementById('resultsContainer');
+        
+        const getCaptionBtn = document.getElementById('getCaptionBtn');
+        const queryBtn = document.getElementById('queryBtn');
+        const questionInput = document.getElementById('questionInput');
+
+        let uploadedImageData = null;
+
+        // Show/Hide API Key
+        showApiKeyCheckbox.addEventListener('change', () => {
+            apiKeyInput.type = showApiKeyCheckbox.checked ? 'text' : 'password';
+        });
+
+        // API Key Input Handler
+        apiKeyInput.addEventListener('input', updateButtonStates);
+
+        // Image Upload Handler
+        imageUpload.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    imagePreview.src = event.target.result;
+                    imagePreview.classList.remove('hidden');
+                    
+                    // Base64 encode the image
+                    uploadedImageData = event.target.result.split(',')[1];
+                    
+                    // Enable buttons if API key is provided
+                    updateButtonStates();
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function updateButtonStates() {
+            const apiKey = apiKeyInput.value.trim();
+            const imageUploaded = !!uploadedImageData;
+
+            getCaptionBtn.disabled = !(apiKey && imageUploaded);
+            queryBtn.disabled = !(apiKey && imageUploaded);
+            questionInput.disabled = !(apiKey && imageUploaded);
+        }
+
+        // Get Caption
+        getCaptionBtn.addEventListener('click', async () => {
+            const apiKey = apiKeyInput.value.trim();
+            resultsContainer.innerHTML = '<p>Generating caption...</p>';
+            
+            try {
+                const response = await axios.post('https://api.moondream.ai/v1/caption', {
+                    apiKey: apiKey,
+                    image: uploadedImageData,
+                    length: 'normal' // or 'short'
+                });
+                
+                resultsContainer.innerHTML = `
+                    <strong>Image Caption:</strong>
+                    <p>${response.data.caption}</p>
+                `;
+            } catch (error) {
+                resultsContainer.innerHTML = `Error: ${error.response ? error.response.data.message : error.message}`;
+            }
+        });
+
+        // Query Image
+        queryBtn.addEventListener('click', async () => {
+            const apiKey = apiKeyInput.value.trim();
+            const question = questionInput.value.trim();
+            
+            if (!question) {
+                alert('Please enter a question');
+                return;
+            }
+            
+            resultsContainer.innerHTML = '<p>Generating answer...</p>';
+            
+            try {
+                const response = await axios.post('https://api.moondream.ai/v1/query', {
+                    apiKey: apiKey,
+                    image: uploadedImageData,
+                    question: question
+                });
+                
+                resultsContainer.innerHTML = `
+                    <strong>Question:</strong> ${question}<br>
+                    <strong>Answer:</strong> ${response.data.answer}
+                `;
+            } catch (error) {
+                resultsContainer.innerHTML = `Error: ${error.response ? error.response.data.message : error.message}`;
+            }
+        });
+    });
+    </script>
+</body>
+</html>

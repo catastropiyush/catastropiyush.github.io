@@ -56,6 +56,9 @@
         let direction = new THREE.Vector3();
         let terrain;
         const simplex = new SimplexNoise();
+        let animals = [];
+        const PLAYER_HEIGHT = 2;
+        let canJump = false;
 
         try {
             init();
@@ -132,6 +135,26 @@
 
             // Create terrain instead of flat ground
             createTerrain();
+
+            // Add animals
+            for(let i = 0; i < 5; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const radius = Math.random() * 40 + 10;
+                createDog(
+                    Math.cos(angle) * radius,
+                    Math.sin(angle) * radius
+                );
+                createCat(
+                    Math.cos(angle + Math.PI) * radius,
+                    Math.sin(angle + Math.PI) * radius
+                );
+            }
+
+            // Set initial player position at ground level
+            const startX = 0;
+            const startZ = 50;
+            const groundY = getHeightAtPosition(startX, startZ);
+            camera.position.set(startX, groundY + PLAYER_HEIGHT, startZ);
 
             console.log('Initialization complete');
         }
@@ -215,6 +238,47 @@
                         if (index > 0) { // Only sway the leaves, not the trunk
                             child.rotation.x = Math.sin(timeNow + object.position.x * 0.1) * 0.05;
                             child.rotation.z = Math.cos(timeNow + object.position.z * 0.1) * 0.05;
+                        }
+                    });
+                }
+            });
+
+            // Update animals
+            animals.forEach(animal => {
+                if (Math.random() < 0.01) {
+                    // Randomly change state
+                    animal.userData.state = animal.userData.state === 'idle' ? 'walking' : 'idle';
+                    
+                    if (animal.userData.state === 'walking') {
+                        const angle = Math.random() * Math.PI * 2;
+                        animal.userData.velocity.x = Math.cos(angle) * 0.1;
+                        animal.userData.velocity.z = Math.sin(angle) * 0.1;
+                    }
+                }
+
+                if (animal.userData.state === 'walking') {
+                    // Move animal
+                    animal.position.x += animal.userData.velocity.x;
+                    animal.position.z += animal.userData.velocity.z;
+                    
+                    // Update Y position to follow terrain
+                    const groundY = getHeightAtPosition(animal.position.x, animal.position.z);
+                    animal.position.y = groundY;
+                    
+                    // Rotate to face movement direction
+                    animal.rotation.y = Math.atan2(animal.userData.velocity.x, animal.userData.velocity.z);
+                    
+                    // Animate legs and tail
+                    animal.children.forEach((part, index) => {
+                        if (index > 1 && index < 6) { // Legs
+                            part.position.y = Math.abs(Math.sin(Date.now() * 0.01 + index)) * 0.2;
+                        }
+                        if (index === 6) { // Tail
+                            if (animal.userData.type === 'dog') {
+                                part.rotation.z = Math.sin(Date.now() * 0.01) * 0.5;
+                            } else {
+                                part.rotation.y = Math.sin(Date.now() * 0.005) * 0.5;
+                            }
                         }
                     });
                 }
@@ -331,6 +395,128 @@
                     scene.add(tree);
                 }
             }
+        }
+
+        function getHeightAtPosition(x, z) {
+            if (!terrain || !terrain.geometry) return 0;
+            
+            const raycaster = new THREE.Raycaster();
+            raycaster.ray.direction.set(0, -1, 0);
+            raycaster.ray.origin.set(x, 100, z);
+            
+            const intersects = raycaster.intersectObject(terrain);
+            if (intersects.length > 0) {
+                return intersects[0].point.y;
+            }
+            return 0;
+        }
+
+        function createDog(x, z) {
+            const dog = new THREE.Group();
+            
+            // Body
+            const bodyGeometry = new THREE.BoxGeometry(1, 0.8, 1.5);
+            const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0x8B4513 });
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.position.y = 0.4;
+            dog.add(body);
+            
+            // Head
+            const headGeometry = new THREE.BoxGeometry(0.7, 0.7, 0.7);
+            const head = new THREE.Mesh(headGeometry, bodyMaterial);
+            head.position.set(0, 0.8, 0.7);
+            dog.add(head);
+            
+            // Legs
+            const legGeometry = new THREE.BoxGeometry(0.3, 0.6, 0.3);
+            const legMaterial = new THREE.MeshPhongMaterial({ color: 0x8B4513 });
+            
+            const positions = [
+                [-0.3, 0, 0.5], // Front Left
+                [0.3, 0, 0.5],  // Front Right
+                [-0.3, 0, -0.5], // Back Left
+                [0.3, 0, -0.5]   // Back Right
+            ];
+            
+            positions.forEach(pos => {
+                const leg = new THREE.Mesh(legGeometry, legMaterial);
+                leg.position.set(pos[0], pos[1], pos[2]);
+                dog.add(leg);
+            });
+            
+            // Tail
+            const tailGeometry = new THREE.BoxGeometry(0.2, 0.2, 0.6);
+            const tail = new THREE.Mesh(tailGeometry, bodyMaterial);
+            tail.position.set(0, 0.5, -0.9);
+            tail.rotation.x = Math.PI / 4;
+            dog.add(tail);
+            
+            const y = getHeightAtPosition(x, z);
+            dog.position.set(x, y, z);
+            dog.userData.type = 'dog';
+            dog.userData.velocity = new THREE.Vector3();
+            dog.userData.state = 'idle';
+            
+            animals.push(dog);
+            scene.add(dog);
+            return dog;
+        }
+
+        function createCat(x, z) {
+            const cat = new THREE.Group();
+            
+            // Body
+            const bodyGeometry = new THREE.BoxGeometry(0.8, 0.6, 1.2);
+            const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0x808080 });
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.position.y = 0.3;
+            cat.add(body);
+            
+            // Head
+            const headGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+            const head = new THREE.Mesh(headGeometry, bodyMaterial);
+            head.position.set(0, 0.6, 0.6);
+            cat.add(head);
+            
+            // Ears
+            const earGeometry = new THREE.ConeGeometry(0.1, 0.2, 4);
+            const ear1 = new THREE.Mesh(earGeometry, bodyMaterial);
+            const ear2 = new THREE.Mesh(earGeometry, bodyMaterial);
+            ear1.position.set(-0.15, 0.9, 0.6);
+            ear2.position.set(0.15, 0.9, 0.6);
+            cat.add(ear1, ear2);
+            
+            // Legs
+            const legGeometry = new THREE.BoxGeometry(0.2, 0.4, 0.2);
+            const positions = [
+                [-0.25, 0, 0.4],
+                [0.25, 0, 0.4],
+                [-0.25, 0, -0.4],
+                [0.25, 0, -0.4]
+            ];
+            
+            positions.forEach(pos => {
+                const leg = new THREE.Mesh(legGeometry, bodyMaterial);
+                leg.position.set(pos[0], pos[1], pos[2]);
+                cat.add(leg);
+            });
+            
+            // Tail
+            const tailGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.8);
+            const tail = new THREE.Mesh(tailGeometry, bodyMaterial);
+            tail.position.set(0, 0.4, -0.8);
+            tail.rotation.x = -Math.PI / 4;
+            cat.add(tail);
+            
+            const y = getHeightAtPosition(x, z);
+            cat.position.set(x, y, z);
+            cat.userData.type = 'cat';
+            cat.userData.velocity = new THREE.Vector3();
+            cat.userData.state = 'idle';
+            
+            animals.push(cat);
+            scene.add(cat);
+            return cat;
         }
     </script>
 </body>

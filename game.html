@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D RPG World</title>
+    <style>
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+        }
+        #info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            background: rgba(0,0,0,0.5);
+            padding: 10px;
+            z-index: 100;
+        }
+        #error {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            background: rgba(255,0,0,0.7);
+            padding: 20px;
+            display: none;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+    <div id="info">Click to start<br>WASD to move<br>Mouse to look</div>
+    <div id="error"></div>
+    
+    <script async src="https://unpkg.com/es-module-shims/dist/es-module-shims.js"></script>
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.159.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.159.0/examples/jsm/"
+        }
+    }
+    </script>
+    <script type="module">
+        import * as THREE from 'three';
+        import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
+        import SimplexNoise from 'https://cdn.skypack.dev/simplex-noise@3.0.1';
+
+        let scene, camera, renderer, controls;
+        let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false;
+        let prevTime = performance.now();
+        let velocity = new THREE.Vector3();
+        let direction = new THREE.Vector3();
+        let terrain;
+        const simplex = new SimplexNoise();
+
+        try {
+            init();
+            animate();
+        } catch (error) {
+            console.error('Initialization error:', error);
+            document.getElementById('error').style.display = 'block';
+            document.getElementById('error').textContent = 'Error: ' + error.message;
+        }
+
+        function init() {
+            // Scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x87CEEB);
+
+            // Camera
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 2, 0);
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ 
+                antialias: true,
+                powerPreference: "high-performance"
+            });
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            // Lights
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+            scene.add(ambientLight);
+
+            const sunLight = new THREE.DirectionalLight(0xffffff, 1);
+            sunLight.position.set(50, 100, 50);
+            sunLight.castShadow = true;
+            sunLight.shadow.mapSize.width = 2048;
+            sunLight.shadow.mapSize.height = 2048;
+            sunLight.shadow.camera.near = 0.5;
+            sunLight.shadow.camera.far = 500;
+            sunLight.shadow.camera.left = -100;
+            sunLight.shadow.camera.right = 100;
+            sunLight.shadow.camera.top = 100;
+            sunLight.shadow.camera.bottom = -100;
+            scene.add(sunLight);
+
+            // Enable shadows in renderer
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+            // Add fog
+            scene.fog = new THREE.FogExp2(0x87CEEB, 0.002);
+
+            // Controls
+            controls = new PointerLockControls(camera, document.body);
+
+            const blocker = document.getElementById('info');
+
+            blocker.addEventListener('click', function () {
+                controls.lock();
+            });
+
+            controls.addEventListener('lock', function () {
+                blocker.style.display = 'none';
+            });
+
+            controls.addEventListener('unlock', function () {
+                blocker.style.display = 'block';
+            });
+
+            // Event listeners
+            document.addEventListener('keydown', onKeyDown);
+            document.addEventListener('keyup', onKeyUp);
+            window.addEventListener('resize', onWindowResize, false);
+
+            // Create terrain instead of flat ground
+            createTerrain();
+
+            console.log('Initialization complete');
+        }
+
+        function onKeyDown(event) {
+            switch (event.code) {
+                case 'ArrowUp':
+                case 'KeyW':
+                    moveForward = true;
+                    break;
+                case 'ArrowDown':
+                case 'KeyS':
+                    moveBackward = true;
+                    break;
+                case 'ArrowLeft':
+                case 'KeyA':
+                    moveLeft = true;
+                    break;
+                case 'ArrowRight':
+                case 'KeyD':
+                    moveRight = true;
+                    break;
+            }
+        }
+
+        function onKeyUp(event) {
+            switch (event.code) {
+                case 'ArrowUp':
+                case 'KeyW':
+                    moveForward = false;
+                    break;
+                case 'ArrowDown':
+                case 'KeyS':
+                    moveBackward = false;
+                    break;
+                case 'ArrowLeft':
+                case 'KeyA':
+                    moveLeft = false;
+                    break;
+                case 'ArrowRight':
+                case 'KeyD':
+                    moveRight = false;
+                    break;
+            }
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (controls.isLocked === true) {
+                const time = performance.now();
+                const delta = (time - prevTime) / 1000;
+
+                velocity.x -= velocity.x * 10.0 * delta;
+                velocity.z -= velocity.z * 10.0 * delta;
+
+                direction.z = Number(moveForward) - Number(moveBackward);
+                direction.x = Number(moveRight) - Number(moveLeft);
+                direction.normalize();
+
+                if (moveForward || moveBackward) velocity.z -= direction.z * 400.0 * delta;
+                if (moveLeft || moveRight) velocity.x -= direction.x * 400.0 * delta;
+
+                controls.moveRight(-velocity.x * delta);
+                controls.moveForward(-velocity.z * delta);
+
+                prevTime = time;
+            }
+
+            // Make trees sway
+            const timeNow = performance.now() * 0.001;
+            scene.traverse(function(object) {
+                if (object instanceof THREE.Group) { // Trees are Groups
+                    object.children.forEach((child, index) => {
+                        if (index > 0) { // Only sway the leaves, not the trunk
+                            child.rotation.x = Math.sin(timeNow + object.position.x * 0.1) * 0.05;
+                            child.rotation.z = Math.cos(timeNow + object.position.z * 0.1) * 0.05;
+                        }
+                    });
+                }
+            });
+
+            renderer.render(scene, camera);
+        }
+
+        function createTerrain() {
+            const size = 1000;
+            const resolution = 128;
+            const geometry = new THREE.PlaneGeometry(size, size, resolution, resolution);
+            
+            // Generate heightmap using multiple octaves of noise
+            const vertices = geometry.attributes.position.array;
+            for (let i = 0; i < vertices.length; i += 3) {
+                const x = vertices[i];
+                const z = vertices[i + 2];
+                
+                let elevation = 0;
+                // Large mountains
+                elevation += simplex.noise2D(x/400, z/400) * 50;
+                // Medium hills
+                elevation += simplex.noise2D(x/100, z/100) * 15;
+                // Small details
+                elevation += simplex.noise2D(x/50, z/50) * 5;
+                
+                vertices[i + 1] = elevation;
+            }
+            
+            geometry.computeVertexNormals();
+
+            // Create terrain material with texture
+            const terrainMaterial = new THREE.MeshStandardMaterial({
+                color: 0x3a5a40,
+                roughness: 0.8,
+                metalness: 0.1,
+                flatShading: true
+            });
+
+            terrain = new THREE.Mesh(geometry, terrainMaterial);
+            terrain.rotation.x = -Math.PI / 2;
+            terrain.receiveShadow = true;
+            scene.add(terrain);
+
+            // Add trees based on elevation
+            addTrees(vertices, size, resolution);
+        }
+
+        function createTree(x, y, z, scale = 1) {
+            const tree = new THREE.Group();
+
+            // Trunk
+            const trunkGeometry = new THREE.CylinderGeometry(0.2 * scale, 0.3 * scale, 2 * scale, 8);
+            const trunkMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0x4a3728,
+                roughness: 0.9 
+            });
+            const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
+            trunk.castShadow = true;
+            trunk.receiveShadow = true;
+            tree.add(trunk);
+
+            // Create multiple layers of leaves
+            const leafColors = [0x2d5a27, 0x1a4314, 0x3d7a37];
+            for (let i = 0; i < 3; i++) {
+                const leafGeometry = new THREE.ConeGeometry(
+                    1.2 * scale - (i * 0.3), 
+                    2 * scale, 
+                    8
+                );
+                const leafMaterial = new THREE.MeshStandardMaterial({ 
+                    color: leafColors[i % leafColors.length],
+                    roughness: 0.8
+                });
+                const leaves = new THREE.Mesh(leafGeometry, leafMaterial);
+                leaves.position.y = (1 + i) * scale;
+                leaves.castShadow = true;
+                leaves.receiveShadow = true;
+                tree.add(leaves);
+            }
+
+            tree.position.set(x, y, z);
+            return tree;
+        }
+
+        function addTrees(vertices, size, resolution) {
+            const treeCount = 1000;
+            const treePositions = [];
+            
+            // Place trees based on terrain height and slope
+            for (let i = 0; i < treeCount; i++) {
+                const x = Math.random() * size - size/2;
+                const z = Math.random() * size - size/2;
+                
+                // Find height at this position
+                const col = Math.round((x + size/2) / size * resolution);
+                const row = Math.round((z + size/2) / size * resolution);
+                const idx = (row * (resolution + 1) + col) * 3;
+                const y = vertices[idx + 1];
+                
+                // Only place trees on relatively flat areas below certain elevation
+                if (y < 30 && y > -10) {
+                    const scale = 0.5 + Math.random() * 1;
+                    const tree = createTree(x, y, z, scale);
+                    
+                    // Random rotation
+                    tree.rotation.y = Math.random() * Math.PI * 2;
+                    
+                    // Add some random offset
+                    tree.position.x += Math.random() * 4 - 2;
+                    tree.position.z += Math.random() * 4 - 2;
+                    
+                    scene.add(tree);
+                }
+            }
+        }
+    </script>
+</body>
+</html> 

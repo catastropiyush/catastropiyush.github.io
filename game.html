@@ -29,6 +29,16 @@
             display: none;
             z-index: 100;
         }
+        #minimap {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 200px;
+            height: 200px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid white;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -59,6 +69,10 @@
         let animals = [];
         const PLAYER_HEIGHT = 2;
         let canJump = false;
+        let moveUp = false;
+        let moveDown = false;
+        let dayTime = 0;
+        let sunLight, sky;
 
         try {
             init();
@@ -91,17 +105,10 @@
             const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
             scene.add(ambientLight);
 
-            const sunLight = new THREE.DirectionalLight(0xffffff, 1);
+            // Create sun and sky
+            sunLight = new THREE.DirectionalLight(0xffffff, 1);
             sunLight.position.set(50, 100, 50);
             sunLight.castShadow = true;
-            sunLight.shadow.mapSize.width = 2048;
-            sunLight.shadow.mapSize.height = 2048;
-            sunLight.shadow.camera.near = 0.5;
-            sunLight.shadow.camera.far = 500;
-            sunLight.shadow.camera.left = -100;
-            sunLight.shadow.camera.right = 100;
-            sunLight.shadow.camera.top = 100;
-            sunLight.shadow.camera.bottom = -100;
             scene.add(sunLight);
 
             // Enable shadows in renderer
@@ -133,21 +140,33 @@
             document.addEventListener('keyup', onKeyUp);
             window.addEventListener('resize', onWindowResize, false);
 
-            // Create terrain instead of flat ground
-            createTerrain();
+            // Create world elements in correct order
+            createGround();    // Ground first
+            createTerrain();   // Then terrain
+            
+            // Add trees after terrain is created
+            const treeCount = 100;
+            for (let i = 0; i < treeCount; i++) {
+                const x = Math.random() * 800 - 400;
+                const z = Math.random() * 800 - 400;
+                const y = getHeightAtPosition(x, z);
+                if (y > 0 && y < 20) { // Only place trees at appropriate heights
+                    createTree(x, y, z);
+                }
+            }
 
             // Add animals
-            for(let i = 0; i < 5; i++) {
-                const angle = Math.random() * Math.PI * 2;
-                const radius = Math.random() * 40 + 10;
-                createDog(
-                    Math.cos(angle) * radius,
-                    Math.sin(angle) * radius
-                );
-                createCat(
-                    Math.cos(angle + Math.PI) * radius,
-                    Math.sin(angle + Math.PI) * radius
-                );
+            for (let i = 0; i < 5; i++) {
+                const x = Math.random() * 400 - 200;
+                const z = Math.random() * 400 - 200;
+                const y = getHeightAtPosition(x, z);
+                createDeer(x, y, z);
+                createPeacock(x + 20, y, z + 20);
+            }
+            
+            // Add birds
+            for(let i = 0; i < 10; i++) {
+                createBird();
             }
 
             // Set initial player position at ground level
@@ -155,6 +174,124 @@
             const startZ = 50;
             const groundY = getHeightAtPosition(startX, startZ);
             camera.position.set(startX, groundY + PLAYER_HEIGHT, startZ);
+
+            // Create a large lake
+            const lake = createLake(50, -50, 30);
+            
+            // Add ducks to the lake
+            for (let i = 0; i < 5; i++) {
+                const duck = createDuck();
+                const angle = Math.random() * Math.PI * 2;
+                const radius = Math.random() * 20;
+                duck.position.set(
+                    50 + Math.cos(angle) * radius,
+                    1,
+                    -50 + Math.sin(angle) * radius
+                );
+                scene.add(duck);
+                animals.push(duck);
+            }
+            
+            // Add more grass patches
+            for (let i = 0; i < 1000; i++) {
+                const x = Math.random() * 800 - 400;
+                const z = Math.random() * 800 - 400;
+                const y = getHeightAtPosition(x, z);
+                if (y > 0 && y < 15) { // Only place grass at appropriate heights
+                    const grass = createGrass(x, y, z);
+                    scene.add(grass);
+                }
+            }
+            
+            // Add more trees in denser clusters
+            for (let cluster = 0; cluster < 20; cluster++) {
+                const centerX = Math.random() * 800 - 400;
+                const centerZ = Math.random() * 800 - 400;
+                
+                for (let i = 0; i < 20; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const radius = Math.random() * 20;
+                    const x = centerX + Math.cos(angle) * radius;
+                    const z = centerZ + Math.sin(angle) * radius;
+                    const y = getHeightAtPosition(x, z);
+                    if (y > 0 && y < 20) {
+                        createTree(x, y, z, 0.5 + Math.random() * 1);
+                    }
+                }
+            }
+
+            // Add more grass
+            for (let i = 0; i < 5000; i++) {
+                const x = Math.random() * 800 - 400;
+                const z = Math.random() * 800 - 400;
+                const y = getHeightAtPosition(x, z);
+                if (y > 0 && y < 15) {
+                    const grass = createGrass(x, y, z);
+                    scene.add(grass);
+                }
+            }
+
+            // Create river
+            const river = createRiver();
+
+            // Add more deer in herds
+            for (let herd = 0; herd < 5; herd++) {
+                const herdCenterX = Math.random() * 800 - 400;
+                const herdCenterZ = Math.random() * 800 - 400;
+                
+                for (let i = 0; i < 10; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const radius = Math.random() * 20;
+                    const x = herdCenterX + Math.cos(angle) * radius;
+                    const z = herdCenterZ + Math.sin(angle) * radius;
+                    const y = getHeightAtPosition(x, z);
+                    createDeer(x, y, z);
+                }
+            }
+
+            // Add more birds in flocks
+            for (let flock = 0; flock < 5; flock++) {
+                const flockCenterX = Math.random() * 400 - 200;
+                const flockCenterY = 50 + Math.random() * 30;
+                const flockCenterZ = Math.random() * 400 - 200;
+                
+                for (let i = 0; i < 10; i++) {
+                    const bird = createBird();
+                    bird.position.set(
+                        flockCenterX + Math.random() * 20 - 10,
+                        flockCenterY + Math.random() * 10 - 5,
+                        flockCenterZ + Math.random() * 20 - 10
+                    );
+                    animals.push(bird);
+                }
+            }
+
+            // Add dense grass
+            for (let patch = 0; patch < 100; patch++) {
+                const patchX = Math.random() * 800 - 400;
+                const patchZ = Math.random() * 800 - 400;
+                
+                for (let i = 0; i < 100; i++) {
+                    const x = patchX + Math.random() * 20 - 10;
+                    const z = patchZ + Math.random() * 20 - 10;
+                    const y = getHeightAtPosition(x, z);
+                    if (y > 0 && y < 15) {
+                        const grass = createGrass(x, y, z);
+                        scene.add(grass);
+                    }
+                }
+            }
+
+            // Add minimap
+            addMinimapStyles();
+            const updateMinimap = createMinimap();
+
+            // Update the animate function to include minimap updates
+            const originalAnimate = animate;
+            animate = function() {
+                originalAnimate();
+                updateMinimap();
+            };
 
             console.log('Initialization complete');
         }
@@ -177,6 +314,12 @@
                 case 'KeyD':
                     moveRight = true;
                     break;
+                case 'Space':
+                    moveUp = true;
+                    break;
+                case 'ShiftLeft':
+                    moveDown = true;
+                    break;
             }
         }
 
@@ -198,6 +341,12 @@
                 case 'KeyD':
                     moveRight = false;
                     break;
+                case 'Space':
+                    moveUp = false;
+                    break;
+                case 'ShiftLeft':
+                    moveDown = false;
+                    break;
             }
         }
 
@@ -210,12 +359,39 @@
         function animate() {
             requestAnimationFrame(animate);
 
+            // Update day/night cycle
+            dayTime += 0.0002;
+            const sunAngle = dayTime % (Math.PI * 2);
+            const sunHeight = Math.sin(sunAngle);
+            const sunX = Math.cos(sunAngle) * 100;
+            const sunY = sunHeight * 100;
+            
+            sunLight.position.set(sunX, Math.max(sunY, 0), 0);
+            sunLight.intensity = Math.max(sunHeight, 0) * 0.5 + 0.5;
+            
+            // Update sky color based on time
+            const skyColor = new THREE.Color();
+            if (sunHeight > 0) {
+                // Day to sunset
+                skyColor.setRGB(
+                    0.529 + sunHeight * 0.1,
+                    0.808 + sunHeight * 0.1,
+                    0.922 + sunHeight * 0.05
+                );
+            } else {
+                // Night
+                skyColor.setRGB(0.1, 0.1, 0.2);
+            }
+            scene.background = skyColor;
+            scene.fog.color = skyColor;
+
             if (controls.isLocked === true) {
                 const time = performance.now();
                 const delta = (time - prevTime) / 1000;
 
                 velocity.x -= velocity.x * 10.0 * delta;
                 velocity.z -= velocity.z * 10.0 * delta;
+                velocity.y -= velocity.y * 10.0 * delta; // Add vertical damping
 
                 direction.z = Number(moveForward) - Number(moveBackward);
                 direction.x = Number(moveRight) - Number(moveLeft);
@@ -223,6 +399,10 @@
 
                 if (moveForward || moveBackward) velocity.z -= direction.z * 400.0 * delta;
                 if (moveLeft || moveRight) velocity.x -= direction.x * 400.0 * delta;
+
+                // Add vertical movement
+                if (moveUp) velocity.y += 400.0 * delta;
+                if (moveDown) velocity.y -= 400.0 * delta;
 
                 controls.moveRight(-velocity.x * delta);
                 controls.moveForward(-velocity.z * delta);
@@ -284,48 +464,160 @@
                 }
             });
 
+            // Animate lake surface
+            scene.traverse((object) => {
+                if (object instanceof THREE.Mesh && object.material.opacity === 0.8) { // Lake identification
+                    object.userData.time += 0.01;
+                    object.position.y = object.userData.initialY + 
+                        Math.sin(object.userData.time) * 0.1;
+                }
+            });
+
+            // Animate ducks
+            animals.forEach(animal => {
+                if (animal.userData.isSwimming) {
+                    // Update duck position
+                    animal.userData.swimAngle += (Math.random() - 0.5) * 0.1;
+                    animal.position.x += Math.cos(animal.userData.swimAngle) * 0.1;
+                    animal.position.z += Math.sin(animal.userData.swimAngle) * 0.1;
+                    
+                    // Keep ducks within lake bounds
+                    const distanceFromCenter = new THREE.Vector2(
+                        animal.position.x - 50,
+                        animal.position.z + 50
+                    ).length();
+                    
+                    if (distanceFromCenter > 25) {
+                        animal.userData.swimAngle += Math.PI;
+                    }
+                    
+                    // Make ducks bob on water
+                    animal.position.y = 1 + Math.sin(Date.now() * 0.002) * 0.1;
+                    
+                    // Rotate duck to face swimming direction
+                    animal.rotation.y = animal.userData.swimAngle;
+                }
+            });
+
+            // Animate grass in wind
+            scene.traverse((object) => {
+                if (object instanceof THREE.Group && object.children[0]?.geometry instanceof THREE.PlaneGeometry) {
+                    const time = Date.now() * 0.001;
+                    const windStrength = Math.sin(time * 0.5) * 0.5 + 0.5;
+                    object.children.forEach(blade => {
+                        const windEffect = Math.sin(time + object.position.x * 0.1) * 0.1 * windStrength;
+                        blade.rotation.x = blade.userData.originalRotation?.x + windEffect || windEffect;
+                        blade.rotation.z = blade.userData.originalRotation?.z + 
+                            Math.cos(time + object.position.z * 0.1) * 0.1 * windStrength || windEffect;
+                    });
+                }
+            });
+
+            // Update bird positions with flocking behavior
+            animals.forEach(animal => {
+                if (animal.userData.type === 'bird') {
+                    // Apply flocking rules
+                    const separation = new THREE.Vector3();
+                    const alignment = new THREE.Vector3();
+                    const cohesion = new THREE.Vector3();
+                    let flockmates = 0;
+
+                    animals.forEach(other => {
+                        if (other !== animal && other.userData.type === 'bird') {
+                            const distance = animal.position.distanceTo(other.position);
+                            if (distance < 30) {
+                                // Separation
+                                const diff = new THREE.Vector3().subVectors(animal.position, other.position);
+                                diff.divideScalar(distance);
+                                separation.add(diff);
+
+                                // Alignment
+                                alignment.add(other.userData.velocity);
+
+                                // Cohesion
+                                cohesion.add(other.position);
+
+                                flockmates++;
+                            }
+                        }
+                    });
+
+                    if (flockmates > 0) {
+                        separation.divideScalar(flockmates);
+                        alignment.divideScalar(flockmates);
+                        cohesion.divideScalar(flockmates);
+                        cohesion.sub(animal.position);
+
+                        animal.userData.velocity.add(separation.multiplyScalar(0.1));
+                        animal.userData.velocity.add(alignment.multiplyScalar(0.1));
+                        animal.userData.velocity.add(cohesion.multiplyScalar(0.1));
+                    }
+
+                    // Update position
+                    animal.position.add(animal.userData.velocity);
+                    animal.lookAt(animal.position.clone().add(animal.userData.velocity));
+
+                    // Keep birds within bounds
+                    if (Math.abs(animal.position.x) > 400) animal.userData.velocity.x *= -1;
+                    if (Math.abs(animal.position.z) > 400) animal.userData.velocity.z *= -1;
+                    if (animal.position.y < 30 || animal.position.y > 100) animal.userData.velocity.y *= -1;
+                }
+            });
+
             renderer.render(scene, camera);
         }
 
         function createTerrain() {
-            const size = 1000;
-            const resolution = 128;
-            const geometry = new THREE.PlaneGeometry(size, size, resolution, resolution);
-            
-            // Generate heightmap using multiple octaves of noise
+            const geometry = new THREE.PlaneGeometry(1000, 1000, 100, 100);
+            geometry.rotateX(-Math.PI / 2);
+
             const vertices = geometry.attributes.position.array;
             for (let i = 0; i < vertices.length; i += 3) {
                 const x = vertices[i];
                 const z = vertices[i + 2];
                 
-                let elevation = 0;
-                // Large mountains
-                elevation += simplex.noise2D(x/400, z/400) * 50;
-                // Medium hills
-                elevation += simplex.noise2D(x/100, z/100) * 15;
-                // Small details
-                elevation += simplex.noise2D(x/50, z/50) * 5;
+                let height = 0;
+                // Base terrain
+                height += simplex.noise2D(x * 0.002, z * 0.002) * 50; // Large features
+                height += simplex.noise2D(x * 0.01, z * 0.01) * 10;   // Medium features
+                height += simplex.noise2D(x * 0.02, z * 0.02) * 5;    // Small features
                 
-                vertices[i + 1] = elevation;
+                vertices[i + 1] = Math.max(0, height); // Ensure minimum height is 0
             }
-            
+
             geometry.computeVertexNormals();
 
-            // Create terrain material with texture
-            const terrainMaterial = new THREE.MeshStandardMaterial({
-                color: 0x3a5a40,
-                roughness: 0.8,
-                metalness: 0.1,
+            // Create material with vertex colors based on height
+            const material = new THREE.MeshStandardMaterial({
+                vertexColors: true,
                 flatShading: true
             });
 
-            terrain = new THREE.Mesh(geometry, terrainMaterial);
-            terrain.rotation.x = -Math.PI / 2;
-            terrain.receiveShadow = true;
-            scene.add(terrain);
+            // Add vertex colors based on height
+            const colors = [];
+            for (let i = 0; i < vertices.length; i += 3) {
+                const height = vertices[i + 1];
+                const color = new THREE.Color();
+                
+                if (height < 2) {
+                    color.setHex(0xc2b280); // Sand color
+                } else if (height < 10) {
+                    color.setHex(0x90EE90); // Light green (grass)
+                } else if (height < 20) {
+                    color.setHex(0x228B22); // Forest green
+                } else {
+                    color.setHex(0x808080); // Mountain gray
+                }
+                
+                colors.push(color.r, color.g, color.b);
+            }
 
-            // Add trees based on elevation
-            addTrees(vertices, size, resolution);
+            geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
+            terrain = new THREE.Mesh(geometry, material);
+            terrain.receiveShadow = true;
+            terrain.castShadow = true;
+            scene.add(terrain);
         }
 
         function createTree(x, y, z, scale = 1) {
@@ -365,38 +657,6 @@
             return tree;
         }
 
-        function addTrees(vertices, size, resolution) {
-            const treeCount = 1000;
-            const treePositions = [];
-            
-            // Place trees based on terrain height and slope
-            for (let i = 0; i < treeCount; i++) {
-                const x = Math.random() * size - size/2;
-                const z = Math.random() * size - size/2;
-                
-                // Find height at this position
-                const col = Math.round((x + size/2) / size * resolution);
-                const row = Math.round((z + size/2) / size * resolution);
-                const idx = (row * (resolution + 1) + col) * 3;
-                const y = vertices[idx + 1];
-                
-                // Only place trees on relatively flat areas below certain elevation
-                if (y < 30 && y > -10) {
-                    const scale = 0.5 + Math.random() * 1;
-                    const tree = createTree(x, y, z, scale);
-                    
-                    // Random rotation
-                    tree.rotation.y = Math.random() * Math.PI * 2;
-                    
-                    // Add some random offset
-                    tree.position.x += Math.random() * 4 - 2;
-                    tree.position.z += Math.random() * 4 - 2;
-                    
-                    scene.add(tree);
-                }
-            }
-        }
-
         function getHeightAtPosition(x, z) {
             if (!terrain || !terrain.geometry) return 0;
             
@@ -411,112 +671,379 @@
             return 0;
         }
 
-        function createDog(x, z) {
-            const dog = new THREE.Group();
+        function createDeer(x, z) {
+            const deer = new THREE.Group();
             
             // Body
-            const bodyGeometry = new THREE.BoxGeometry(1, 0.8, 1.5);
+            const bodyGeometry = new THREE.CapsuleGeometry(0.4, 1.2, 4, 8);
             const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0x8B4513 });
             const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-            body.position.y = 0.4;
-            dog.add(body);
+            body.rotation.z = Math.PI / 2;
+            deer.add(body);
             
             // Head
-            const headGeometry = new THREE.BoxGeometry(0.7, 0.7, 0.7);
+            const headGeometry = new THREE.CapsuleGeometry(0.3, 0.8, 4, 8);
             const head = new THREE.Mesh(headGeometry, bodyMaterial);
-            head.position.set(0, 0.8, 0.7);
-            dog.add(head);
+            head.position.set(0.8, 0.5, 0);
+            head.rotation.z = -Math.PI / 6;
+            deer.add(head);
+            
+            // Antlers (only for some deer)
+            if (Math.random() > 0.5) {
+                const antlerMaterial = new THREE.MeshPhongMaterial({ color: 0x4A3728 });
+                [-1, 1].forEach(side => {
+                    const antler = new THREE.Group();
+                    const mainBranch = new THREE.CylinderGeometry(0.02, 0.02, 0.5);
+                    const mainMesh = new THREE.Mesh(mainBranch, antlerMaterial);
+                    mainMesh.rotation.z = Math.PI / 4;
+                    antler.add(mainMesh);
+                    
+                    // Add branches
+                    for (let i = 0; i < 3; i++) {
+                        const branch = new THREE.CylinderGeometry(0.01, 0.01, 0.3);
+                        const branchMesh = new THREE.Mesh(branch, antlerMaterial);
+                        branchMesh.position.y = 0.1 + (i * 0.1);
+                        branchMesh.rotation.z = Math.PI / 3;
+                        antler.add(branchMesh);
+                    }
+                    antler.position.set(0.9, 0.8, side * 0.15);
+                    deer.add(antler);
+                });
+            }
             
             // Legs
-            const legGeometry = new THREE.BoxGeometry(0.3, 0.6, 0.3);
-            const legMaterial = new THREE.MeshPhongMaterial({ color: 0x8B4513 });
-            
+            const legGeometry = new THREE.CylinderGeometry(0.1, 0.1, 1.2);
             const positions = [
-                [-0.3, 0, 0.5], // Front Left
-                [0.3, 0, 0.5],  // Front Right
-                [-0.3, 0, -0.5], // Back Left
-                [0.3, 0, -0.5]   // Back Right
-            ];
-            
-            positions.forEach(pos => {
-                const leg = new THREE.Mesh(legGeometry, legMaterial);
-                leg.position.set(pos[0], pos[1], pos[2]);
-                dog.add(leg);
-            });
-            
-            // Tail
-            const tailGeometry = new THREE.BoxGeometry(0.2, 0.2, 0.6);
-            const tail = new THREE.Mesh(tailGeometry, bodyMaterial);
-            tail.position.set(0, 0.5, -0.9);
-            tail.rotation.x = Math.PI / 4;
-            dog.add(tail);
-            
-            const y = getHeightAtPosition(x, z);
-            dog.position.set(x, y, z);
-            dog.userData.type = 'dog';
-            dog.userData.velocity = new THREE.Vector3();
-            dog.userData.state = 'idle';
-            
-            animals.push(dog);
-            scene.add(dog);
-            return dog;
-        }
-
-        function createCat(x, z) {
-            const cat = new THREE.Group();
-            
-            // Body
-            const bodyGeometry = new THREE.BoxGeometry(0.8, 0.6, 1.2);
-            const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0x808080 });
-            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-            body.position.y = 0.3;
-            cat.add(body);
-            
-            // Head
-            const headGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
-            const head = new THREE.Mesh(headGeometry, bodyMaterial);
-            head.position.set(0, 0.6, 0.6);
-            cat.add(head);
-            
-            // Ears
-            const earGeometry = new THREE.ConeGeometry(0.1, 0.2, 4);
-            const ear1 = new THREE.Mesh(earGeometry, bodyMaterial);
-            const ear2 = new THREE.Mesh(earGeometry, bodyMaterial);
-            ear1.position.set(-0.15, 0.9, 0.6);
-            ear2.position.set(0.15, 0.9, 0.6);
-            cat.add(ear1, ear2);
-            
-            // Legs
-            const legGeometry = new THREE.BoxGeometry(0.2, 0.4, 0.2);
-            const positions = [
-                [-0.25, 0, 0.4],
-                [0.25, 0, 0.4],
-                [-0.25, 0, -0.4],
-                [0.25, 0, -0.4]
+                [-0.3, -0.6, 0.3],
+                [0.3, -0.6, 0.3],
+                [-0.3, -0.6, -0.3],
+                [0.3, -0.6, -0.3]
             ];
             
             positions.forEach(pos => {
                 const leg = new THREE.Mesh(legGeometry, bodyMaterial);
-                leg.position.set(pos[0], pos[1], pos[2]);
-                cat.add(leg);
+                leg.position.set(...pos);
+                deer.add(leg);
             });
             
-            // Tail
-            const tailGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.8);
-            const tail = new THREE.Mesh(tailGeometry, bodyMaterial);
-            tail.position.set(0, 0.4, -0.8);
-            tail.rotation.x = -Math.PI / 4;
-            cat.add(tail);
+            const y = getHeightAtPosition(x, z);
+            deer.position.set(x, y + 1.2, z); // Adjust y position based on leg height
+            deer.userData.type = 'deer';
+            deer.userData.velocity = new THREE.Vector3();
+            deer.userData.state = 'idle';
+            
+            animals.push(deer);
+            scene.add(deer);
+            return deer;
+        }
+
+        function createBird() {
+            const bird = new THREE.Group();
+            
+            // Body
+            const bodyGeometry = new THREE.CapsuleGeometry(0.2, 0.4, 4, 8);
+            const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0x555555 });
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            bird.add(body);
+            
+            // Wings
+            const wingGeometry = new THREE.PlaneGeometry(0.8, 0.3);
+            const wingMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0x666666,
+                side: THREE.DoubleSide
+            });
+            
+            const leftWing = new THREE.Mesh(wingGeometry, wingMaterial);
+            leftWing.position.set(-0.4, 0, 0);
+            bird.add(leftWing);
+            
+            const rightWing = new THREE.Mesh(wingGeometry, wingMaterial);
+            rightWing.position.set(0.4, 0, 0);
+            bird.add(rightWing);
+            
+            bird.position.set(
+                Math.random() * 200 - 100,
+                50 + Math.random() * 30,
+                Math.random() * 200 - 100
+            );
+            
+            bird.userData.velocity = new THREE.Vector3(
+                Math.random() - 0.5,
+                0,
+                Math.random() - 0.5
+            ).normalize().multiplyScalar(0.5);
+            
+            scene.add(bird);
+            return bird;
+        }
+
+        function createPeacock(x, z) {
+            const peacock = new THREE.Group();
+            
+            // Body
+            const bodyGeometry = new THREE.CapsuleGeometry(0.3, 0.8, 4, 8);
+            const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0x000080 }); // Navy blue
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            peacock.add(body);
+            
+            // Tail feathers
+            const featherColors = [0x00FF00, 0x4169E1, 0x000080]; // Green, Royal Blue, Navy
+            const featherCount = 12;
+            const featherGeometry = new THREE.PlaneGeometry(0.2, 1);
+            
+            for (let i = 0; i < featherCount; i++) {
+                const angle = (i / featherCount) * Math.PI;
+                const featherMaterial = new THREE.MeshPhongMaterial({
+                    color: featherColors[i % featherColors.length],
+                    side: THREE.DoubleSide
+                });
+                const feather = new THREE.Mesh(featherGeometry, featherMaterial);
+                feather.position.set(
+                    Math.cos(angle) * 0.5,
+                    0.5,
+                    Math.sin(angle) * 0.5 - 0.5
+                );
+                feather.rotation.x = Math.PI / 3;
+                feather.rotation.y = angle;
+                peacock.add(feather);
+            }
+            
+            // Head and neck
+            const headGeometry = new THREE.SphereGeometry(0.15);
+            const headMaterial = new THREE.MeshPhongMaterial({ color: 0x000080 });
+            const head = new THREE.Mesh(headGeometry, headMaterial);
+            head.position.set(0, 0.6, 0.3);
+            peacock.add(head);
+            
+            // Crown
+            const crownGeometry = new THREE.CylinderGeometry(0.02, 0.02, 0.2);
+            const crownMaterial = new THREE.MeshPhongMaterial({ color: 0x00FF00 });
+            for (let i = 0; i < 3; i++) {
+                const crown = new THREE.Mesh(crownGeometry, crownMaterial);
+                crown.position.set(0, 0.8, 0.3);
+                crown.rotation.z = (i / 3) * Math.PI;
+                peacock.add(crown);
+            }
             
             const y = getHeightAtPosition(x, z);
-            cat.position.set(x, y, z);
-            cat.userData.type = 'cat';
-            cat.userData.velocity = new THREE.Vector3();
-            cat.userData.state = 'idle';
+            peacock.position.set(x, y + 0.5, z);
+            peacock.userData.type = 'peacock';
+            peacock.userData.velocity = new THREE.Vector3();
+            peacock.userData.state = 'idle';
             
-            animals.push(cat);
-            scene.add(cat);
-            return cat;
+            animals.push(peacock);
+            scene.add(peacock);
+            return peacock;
+        }
+
+        function createGround() {
+            const groundGeometry = new THREE.PlaneGeometry(2000, 2000);
+            const groundMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0x355E3B,
+                roughness: 0.8,
+                metalness: 0.2
+            });
+            const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+            
+            ground.rotation.x = -Math.PI / 2;
+            ground.position.y = -1; // Just below terrain level
+            ground.receiveShadow = true;
+            
+            scene.add(ground);
+        }
+
+        function createLake(x, z, radius) {
+            // Create lake surface
+            const lakeGeometry = new THREE.CircleGeometry(radius, 32);
+            const lakeMaterial = new THREE.MeshPhongMaterial({
+                color: 0x0099ff,
+                transparent: true,
+                opacity: 0.8,
+                shininess: 100
+            });
+            const lake = new THREE.Mesh(lakeGeometry, lakeMaterial);
+            lake.rotation.x = -Math.PI / 2;
+            lake.position.set(x, 0.5, z); // Slightly above ground to avoid z-fighting
+            
+            // Add water animation
+            lake.userData.initialY = lake.position.y;
+            lake.userData.time = 0;
+            
+            scene.add(lake);
+            return lake;
+        }
+
+        function createDuck() {
+            const duck = new THREE.Group();
+            
+            // Body
+            const bodyGeometry = new THREE.SphereGeometry(0.3, 8, 8);
+            const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0xFFFFFF });
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            duck.add(body);
+            
+            // Head
+            const headGeometry = new THREE.SphereGeometry(0.2, 8, 8);
+            const head = new THREE.Mesh(headGeometry, bodyMaterial);
+            head.position.set(0.3, 0.2, 0);
+            duck.add(head);
+            
+            // Bill
+            const billGeometry = new THREE.ConeGeometry(0.1, 0.2, 4);
+            const billMaterial = new THREE.MeshPhongMaterial({ color: 0xFFA500 });
+            const bill = new THREE.Mesh(billGeometry, billMaterial);
+            bill.rotation.z = Math.PI / 2;
+            bill.position.set(0.5, 0.2, 0);
+            duck.add(bill);
+            
+            // Initialize duck properties
+            duck.userData.velocity = new THREE.Vector3();
+            duck.userData.isSwimming = true;
+            duck.userData.swimAngle = Math.random() * Math.PI * 2;
+            
+            return duck;
+        }
+
+        function createGrass(x, y, z) {
+            const grass = new THREE.Group();
+            
+            // Create multiple blades
+            const bladeCount = 3;
+            const bladeGeometry = new THREE.PlaneGeometry(0.1, 0.5);
+            const bladeMaterial = new THREE.MeshPhongMaterial({
+                color: 0x3a5a40,
+                side: THREE.DoubleSide
+            });
+            
+            for (let i = 0; i < bladeCount; i++) {
+                const blade = new THREE.Mesh(bladeGeometry, bladeMaterial);
+                blade.position.set(
+                    (Math.random() - 0.5) * 0.2,
+                    Math.random() * 0.2,
+                    (Math.random() - 0.5) * 0.2
+                );
+                blade.rotation.y = Math.random() * Math.PI;
+                blade.rotation.x = Math.random() * 0.2;
+                grass.add(blade);
+            }
+            
+            grass.position.set(x, y, z);
+            return grass;
+        }
+
+        function createRiver() {
+            const riverPoints = [];
+            const riverWidth = 15;
+            let x = -500;
+            let z = 0;
+            
+            // Create meandering river path
+            while (x < 500) {
+                riverPoints.push(new THREE.Vector3(x, 0, z));
+                x += 10;
+                z += Math.sin(x * 0.02) * 5;
+            }
+
+            const riverShape = new THREE.Shape();
+            riverPoints.forEach((point, i) => {
+                if (i === 0) riverShape.moveTo(point.x, point.z - riverWidth);
+                else riverShape.lineTo(point.x, point.z - riverWidth);
+            });
+            // Complete the shape
+            riverPoints.reverse().forEach(point => {
+                riverShape.lineTo(point.x, point.z + riverWidth);
+            });
+            riverShape.closePath();
+
+            const riverGeometry = new THREE.ShapeGeometry(riverShape);
+            const riverMaterial = new THREE.MeshPhongMaterial({
+                color: 0x0077be,
+                transparent: true,
+                opacity: 0.8,
+                shininess: 100
+            });
+            
+            const river = new THREE.Mesh(riverGeometry, riverMaterial);
+            river.rotation.x = -Math.PI / 2;
+            river.position.y = 0.5;
+            
+            // Add flow animation properties
+            river.userData.flowOffset = 0;
+            
+            scene.add(river);
+            return river;
+        }
+
+        function addMinimapStyles() {
+            const style = document.createElement('style');
+            style.textContent = `
+                #minimap {
+                    position: fixed;
+                    bottom: 20px;
+                    right: 20px;
+                    width: 200px;
+                    height: 200px;
+                    background: rgba(0, 0, 0, 0.5);
+                    border: 2px solid white;
+                    border-radius: 5px;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        function createMinimap() {
+            const minimapDiv = document.createElement('div');
+            minimapDiv.id = 'minimap';
+            document.body.appendChild(minimapDiv);
+
+            const minimapScene = new THREE.Scene();
+            const minimapCamera = new THREE.OrthographicCamera(
+                -500, 500, 500, -500, 1, 1000
+            );
+            minimapCamera.position.set(0, 200, 0);
+            minimapCamera.lookAt(0, 0, 0);
+
+            const minimapRenderer = new THREE.WebGLRenderer({ alpha: true });
+            minimapRenderer.setSize(200, 200);
+            minimapDiv.appendChild(minimapRenderer.domElement);
+
+            // Create simplified versions of scene objects for minimap
+            function createMinimapObjects() {
+                // Terrain outline
+                const terrainShape = new THREE.Shape();
+                terrainShape.moveTo(-500, -500);
+                terrainShape.lineTo(500, -500);
+                terrainShape.lineTo(500, 500);
+                terrainShape.lineTo(-500, 500);
+                terrainShape.closePath();
+                
+                const terrainGeometry = new THREE.ShapeGeometry(terrainShape);
+                const terrainMaterial = new THREE.MeshBasicMaterial({ color: 0x90EE90 });
+                const terrainMesh = new THREE.Mesh(terrainGeometry, terrainMaterial);
+                terrainMesh.rotation.x = -Math.PI / 2;
+                minimapScene.add(terrainMesh);
+
+                // Player marker (white dot)
+                const playerMarker = new THREE.Mesh(
+                    new THREE.CircleGeometry(5, 32),
+                    new THREE.MeshBasicMaterial({ color: 0xffffff })
+                );
+                playerMarker.rotation.x = -Math.PI / 2;
+                minimapScene.add(playerMarker);
+
+                return { playerMarker };
+            }
+
+            const minimapObjects = createMinimapObjects();
+
+            // Update minimap
+            function updateMinimap() {
+                minimapObjects.playerMarker.position.x = camera.position.x;
+                minimapObjects.playerMarker.position.z = camera.position.z;
+                minimapRenderer.render(minimapScene, minimapCamera);
+            }
+
+            return updateMinimap;
         }
     </script>
 </body>

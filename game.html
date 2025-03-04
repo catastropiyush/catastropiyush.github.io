@@ -73,6 +73,10 @@
         let moveDown = false;
         let dayTime = 0;
         let sunLight, sky;
+        let raycaster = new THREE.Raycaster();
+        let mouse = new THREE.Vector2();
+        let hoveredObject = null;
+        let interactionText = null;
 
         try {
             init();
@@ -293,6 +297,40 @@
                 updateMinimap();
             };
 
+            // Add dragon
+            const dragon = createDragon();
+            dragon.position.set(0, 100, 0);
+            scene.add(dragon);
+            
+            // Update animate to include dragon movement
+            animate = function() {
+                originalAnimate();
+                
+                // Animate dragon
+                if (dragon) {
+                    dragon.userData.time += 0.005;
+                    const radius = 200;
+                    dragon.position.x = Math.cos(dragon.userData.time) * radius;
+                    dragon.position.z = Math.sin(dragon.userData.time) * radius;
+                    dragon.position.y = dragon.userData.flyingHeight + Math.sin(dragon.userData.time * 2) * 20;
+                    dragon.rotation.y = -dragon.userData.time;
+                    
+                    // Animate wings
+                    dragon.children[2].rotation.y = Math.PI / 4 + Math.sin(dragon.userData.time * 10) * 0.2;
+                    dragon.children[3].rotation.y = -Math.PI / 4 - Math.sin(dragon.userData.time * 10) * 0.2;
+                }
+            };
+
+            // Create flower field
+            createFlowerField();
+            
+            // Add interaction text
+            interactionText = createInteractionText();
+            
+            // Add mouse event listeners
+            document.addEventListener('mousemove', onMouseMove, false);
+            document.addEventListener('click', onMouseClick, false);
+
             console.log('Initialization complete');
         }
 
@@ -319,6 +357,9 @@
                     break;
                 case 'ShiftLeft':
                     moveDown = true;
+                    break;
+                case 'KeyE':
+                    interactWithAnimals();
                     break;
             }
         }
@@ -359,40 +400,24 @@
         function animate() {
             requestAnimationFrame(animate);
 
-            // Update day/night cycle
-            dayTime += 0.0002;
-            const sunAngle = dayTime % (Math.PI * 2);
-            const sunHeight = Math.sin(sunAngle);
-            const sunX = Math.cos(sunAngle) * 100;
-            const sunY = sunHeight * 100;
-            
-            sunLight.position.set(sunX, Math.max(sunY, 0), 0);
-            sunLight.intensity = Math.max(sunHeight, 0) * 0.5 + 0.5;
-            
-            // Update sky color based on time
-            const skyColor = new THREE.Color();
-            if (sunHeight > 0) {
-                // Day to sunset
-                skyColor.setRGB(
-                    0.529 + sunHeight * 0.1,
-                    0.808 + sunHeight * 0.1,
-                    0.922 + sunHeight * 0.05
-                );
-            } else {
-                // Night
-                skyColor.setRGB(0.1, 0.1, 0.2);
-            }
-            scene.background = skyColor;
-            scene.fog.color = skyColor;
-
-            if (controls.isLocked === true) {
+            if (controls.isLocked) {
                 const time = performance.now();
                 const delta = (time - prevTime) / 1000;
 
-                velocity.x -= velocity.x * 10.0 * delta;
-                velocity.z -= velocity.z * 10.0 * delta;
-                velocity.y -= velocity.y * 10.0 * delta; // Add vertical damping
+                // Reset horizontal velocity
+                velocity.x -= velocity.x * 5.0 * delta;
+                velocity.z -= velocity.z * 5.0 * delta;
 
+                // Smoother vertical movement
+                if (moveUp) {
+                    velocity.y = Math.min(velocity.y + 40.0 * delta, 20.0);
+                } else if (moveDown) {
+                    velocity.y = Math.max(velocity.y - 40.0 * delta, -20.0);
+                } else {
+                    velocity.y -= velocity.y * 2.0 * delta; // Gentle drift down
+                }
+
+                // Update movement
                 direction.z = Number(moveForward) - Number(moveBackward);
                 direction.x = Number(moveRight) - Number(moveLeft);
                 direction.normalize();
@@ -400,169 +425,71 @@
                 if (moveForward || moveBackward) velocity.z -= direction.z * 400.0 * delta;
                 if (moveLeft || moveRight) velocity.x -= direction.x * 400.0 * delta;
 
-                // Add vertical movement
-                if (moveUp) velocity.y += 400.0 * delta;
-                if (moveDown) velocity.y -= 400.0 * delta;
-
+                // Move camera
                 controls.moveRight(-velocity.x * delta);
                 controls.moveForward(-velocity.z * delta);
+                camera.position.y += velocity.y * delta;
+
+                // Keep above ground
+                const terrainHeight = getHeightAtPosition(camera.position.x, camera.position.z);
+                if (camera.position.y < terrainHeight + PLAYER_HEIGHT) {
+                    camera.position.y = terrainHeight + PLAYER_HEIGHT;
+                    velocity.y = 0;
+                }
 
                 prevTime = time;
             }
 
-            // Make trees sway
-            const timeNow = performance.now() * 0.001;
-            scene.traverse(function(object) {
-                if (object instanceof THREE.Group) { // Trees are Groups
-                    object.children.forEach((child, index) => {
-                        if (index > 0) { // Only sway the leaves, not the trunk
-                            child.rotation.x = Math.sin(timeNow + object.position.x * 0.1) * 0.05;
-                            child.rotation.z = Math.cos(timeNow + object.position.z * 0.1) * 0.05;
-                        }
-                    });
-                }
-            });
-
-            // Update animals
-            animals.forEach(animal => {
-                if (Math.random() < 0.01) {
-                    // Randomly change state
-                    animal.userData.state = animal.userData.state === 'idle' ? 'walking' : 'idle';
-                    
-                    if (animal.userData.state === 'walking') {
-                        const angle = Math.random() * Math.PI * 2;
-                        animal.userData.velocity.x = Math.cos(angle) * 0.1;
-                        animal.userData.velocity.z = Math.sin(angle) * 0.1;
+            // Update raycaster for interactions
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(scene.children, true);
+            
+            // Handle hover effects
+            if (intersects.length > 0) {
+                const object = intersects[0].object;
+                if (object.userData.isFlower || object.userData.type) {
+                    hoveredObject = object;
+                    if (interactionText) {
+                        interactionText.style.display = 'block';
+                        interactionText.style.left = (event.clientX + 10) + 'px';
+                        interactionText.style.top = (event.clientY + 10) + 'px';
+                        interactionText.textContent = `Click to interact with ${
+                            object.userData.isFlower ? 'flower' : object.userData.type
+                        }`;
                     }
                 }
-
-                if (animal.userData.state === 'walking') {
-                    // Move animal
-                    animal.position.x += animal.userData.velocity.x;
-                    animal.position.z += animal.userData.velocity.z;
-                    
-                    // Update Y position to follow terrain
-                    const groundY = getHeightAtPosition(animal.position.x, animal.position.z);
-                    animal.position.y = groundY;
-                    
-                    // Rotate to face movement direction
-                    animal.rotation.y = Math.atan2(animal.userData.velocity.x, animal.userData.velocity.z);
-                    
-                    // Animate legs and tail
-                    animal.children.forEach((part, index) => {
-                        if (index > 1 && index < 6) { // Legs
-                            part.position.y = Math.abs(Math.sin(Date.now() * 0.01 + index)) * 0.2;
-                        }
-                        if (index === 6) { // Tail
-                            if (animal.userData.type === 'dog') {
-                                part.rotation.z = Math.sin(Date.now() * 0.01) * 0.5;
-                            } else {
-                                part.rotation.y = Math.sin(Date.now() * 0.005) * 0.5;
-                            }
-                        }
-                    });
+            } else {
+                hoveredObject = null;
+                if (interactionText) {
+                    interactionText.style.display = 'none';
                 }
-            });
+            }
 
-            // Animate lake surface
-            scene.traverse((object) => {
-                if (object instanceof THREE.Mesh && object.material.opacity === 0.8) { // Lake identification
-                    object.userData.time += 0.01;
-                    object.position.y = object.userData.initialY + 
-                        Math.sin(object.userData.time) * 0.1;
-                }
-            });
+            // Update day/night cycle
+            dayTime += 0.0002;
+            const sunAngle = dayTime % (Math.PI * 2);
+            const sunHeight = Math.sin(sunAngle);
+            const sunX = Math.cos(sunAngle) * 100;
+            const sunY = Math.max(sunHeight * 100, 0);
+            
+            if (sunLight) {
+                sunLight.position.set(sunX, sunY, 0);
+                sunLight.intensity = Math.max(sunHeight, 0.2);
+            }
 
-            // Animate ducks
-            animals.forEach(animal => {
-                if (animal.userData.isSwimming) {
-                    // Update duck position
-                    animal.userData.swimAngle += (Math.random() - 0.5) * 0.1;
-                    animal.position.x += Math.cos(animal.userData.swimAngle) * 0.1;
-                    animal.position.z += Math.sin(animal.userData.swimAngle) * 0.1;
-                    
-                    // Keep ducks within lake bounds
-                    const distanceFromCenter = new THREE.Vector2(
-                        animal.position.x - 50,
-                        animal.position.z + 50
-                    ).length();
-                    
-                    if (distanceFromCenter > 25) {
-                        animal.userData.swimAngle += Math.PI;
-                    }
-                    
-                    // Make ducks bob on water
-                    animal.position.y = 1 + Math.sin(Date.now() * 0.002) * 0.1;
-                    
-                    // Rotate duck to face swimming direction
-                    animal.rotation.y = animal.userData.swimAngle;
-                }
-            });
-
-            // Animate grass in wind
-            scene.traverse((object) => {
-                if (object instanceof THREE.Group && object.children[0]?.geometry instanceof THREE.PlaneGeometry) {
-                    const time = Date.now() * 0.001;
-                    const windStrength = Math.sin(time * 0.5) * 0.5 + 0.5;
-                    object.children.forEach(blade => {
-                        const windEffect = Math.sin(time + object.position.x * 0.1) * 0.1 * windStrength;
-                        blade.rotation.x = blade.userData.originalRotation?.x + windEffect || windEffect;
-                        blade.rotation.z = blade.userData.originalRotation?.z + 
-                            Math.cos(time + object.position.z * 0.1) * 0.1 * windStrength || windEffect;
-                    });
-                }
-            });
-
-            // Update bird positions with flocking behavior
-            animals.forEach(animal => {
-                if (animal.userData.type === 'bird') {
-                    // Apply flocking rules
-                    const separation = new THREE.Vector3();
-                    const alignment = new THREE.Vector3();
-                    const cohesion = new THREE.Vector3();
-                    let flockmates = 0;
-
-                    animals.forEach(other => {
-                        if (other !== animal && other.userData.type === 'bird') {
-                            const distance = animal.position.distanceTo(other.position);
-                            if (distance < 30) {
-                                // Separation
-                                const diff = new THREE.Vector3().subVectors(animal.position, other.position);
-                                diff.divideScalar(distance);
-                                separation.add(diff);
-
-                                // Alignment
-                                alignment.add(other.userData.velocity);
-
-                                // Cohesion
-                                cohesion.add(other.position);
-
-                                flockmates++;
-                            }
-                        }
-                    });
-
-                    if (flockmates > 0) {
-                        separation.divideScalar(flockmates);
-                        alignment.divideScalar(flockmates);
-                        cohesion.divideScalar(flockmates);
-                        cohesion.sub(animal.position);
-
-                        animal.userData.velocity.add(separation.multiplyScalar(0.1));
-                        animal.userData.velocity.add(alignment.multiplyScalar(0.1));
-                        animal.userData.velocity.add(cohesion.multiplyScalar(0.1));
-                    }
-
-                    // Update position
-                    animal.position.add(animal.userData.velocity);
-                    animal.lookAt(animal.position.clone().add(animal.userData.velocity));
-
-                    // Keep birds within bounds
-                    if (Math.abs(animal.position.x) > 400) animal.userData.velocity.x *= -1;
-                    if (Math.abs(animal.position.z) > 400) animal.userData.velocity.z *= -1;
-                    if (animal.position.y < 30 || animal.position.y > 100) animal.userData.velocity.y *= -1;
-                }
-            });
+            // Update sky color
+            const skyColor = new THREE.Color();
+            if (sunHeight > 0) {
+                skyColor.setRGB(
+                    0.529 + sunHeight * 0.1,
+                    0.808 + sunHeight * 0.1,
+                    0.922 + sunHeight * 0.05
+                );
+            } else {
+                skyColor.setRGB(0.1, 0.1, 0.2);
+            }
+            scene.background = skyColor;
+            if (scene.fog) scene.fog.color = skyColor;
 
             renderer.render(scene, camera);
         }
@@ -658,11 +585,10 @@
         }
 
         function getHeightAtPosition(x, z) {
-            if (!terrain || !terrain.geometry) return 0;
-            
+            // Raycast from high above to find terrain height
             const raycaster = new THREE.Raycaster();
             raycaster.ray.direction.set(0, -1, 0);
-            raycaster.ray.origin.set(x, 100, z);
+            raycaster.ray.origin.set(x, 1000, z);
             
             const intersects = raycaster.intersectObject(terrain);
             if (intersects.length > 0) {
@@ -852,22 +778,31 @@
             scene.add(ground);
         }
 
-        function createLake(x, z, radius) {
-            // Create lake surface
-            const lakeGeometry = new THREE.CircleGeometry(radius, 32);
+        function createLake(centerX, centerZ, baseRadius) {
+            const points = [];
+            const segments = 32;
+            
+            for (let i = 0; i < segments; i++) {
+                const angle = (i / segments) * Math.PI * 2;
+                // Add noise to radius for irregular shape
+                const radius = baseRadius * (1 + 0.3 * simplex.noise2D(Math.cos(angle), Math.sin(angle)));
+                const x = Math.cos(angle) * radius;
+                const z = Math.sin(angle) * radius;
+                points.push(new THREE.Vector2(x, z));
+            }
+            
+            const lakeShape = new THREE.Shape(points);
+            const lakeGeometry = new THREE.ShapeGeometry(lakeShape);
             const lakeMaterial = new THREE.MeshPhongMaterial({
                 color: 0x0099ff,
                 transparent: true,
                 opacity: 0.8,
                 shininess: 100
             });
+            
             const lake = new THREE.Mesh(lakeGeometry, lakeMaterial);
             lake.rotation.x = -Math.PI / 2;
-            lake.position.set(x, 0.5, z); // Slightly above ground to avoid z-fighting
-            
-            // Add water animation
-            lake.userData.initialY = lake.position.y;
-            lake.userData.time = 0;
+            lake.position.set(centerX, 0.5, centerZ);
             
             scene.add(lake);
             return lake;
@@ -933,27 +868,54 @@
 
         function createRiver() {
             const riverPoints = [];
-            const riverWidth = 15;
             let x = -500;
-            let z = 0;
+            let z = -200;
             
-            // Create meandering river path
-            while (x < 500) {
-                riverPoints.push(new THREE.Vector3(x, 0, z));
-                x += 10;
-                z += Math.sin(x * 0.02) * 5;
+            // Create meandering river path that flows to lake
+            while (x < 50) { // Lake center X
+                const point = new THREE.Vector3(x, 0, z);
+                // Add meandering using noise
+                z = -200 + simplex.noise2D(x * 0.01, 0) * 50;
+                // Gradually curve towards lake
+                z += ((-50 - z) / 550) * (x + 500); // Lake center Z is -50
+                riverPoints.push(point);
+                x += 5;
             }
 
+            // Create variable width river
             const riverShape = new THREE.Shape();
+            const width = 15;
+            
             riverPoints.forEach((point, i) => {
-                if (i === 0) riverShape.moveTo(point.x, point.z - riverWidth);
-                else riverShape.lineTo(point.x, point.z - riverWidth);
+                const progress = i / riverPoints.length;
+                // River gets wider as it approaches lake
+                const currentWidth = width * (1 + progress);
+                const angle = i < riverPoints.length - 1 
+                    ? Math.atan2(riverPoints[i+1].z - point.z, riverPoints[i+1].x - point.x)
+                    : Math.atan2(riverPoints[i].z - riverPoints[i-1].z, riverPoints[i].x - riverPoints[i-1].x);
+                
+                const dx = Math.cos(angle + Math.PI/2) * currentWidth;
+                const dz = Math.sin(angle + Math.PI/2) * currentWidth;
+                
+                if (i === 0) {
+                    riverShape.moveTo(point.x + dx, point.z + dz);
+                } else {
+                    riverShape.lineTo(point.x + dx, point.z + dz);
+                }
             });
+            
             // Complete the shape
-            riverPoints.reverse().forEach(point => {
-                riverShape.lineTo(point.x, point.z + riverWidth);
+            riverPoints.reverse().forEach((point, i) => {
+                const progress = (riverPoints.length - i) / riverPoints.length;
+                const currentWidth = width * (1 + progress);
+                const angle = i < riverPoints.length - 1 
+                    ? Math.atan2(riverPoints[i+1].z - point.z, riverPoints[i+1].x - point.x)
+                    : Math.atan2(riverPoints[i].z - riverPoints[i-1].z, riverPoints[i].x - riverPoints[i-1].x);
+                
+                const dx = Math.cos(angle - Math.PI/2) * currentWidth;
+                const dz = Math.sin(angle - Math.PI/2) * currentWidth;
+                riverShape.lineTo(point.x + dx, point.z + dz);
             });
-            riverShape.closePath();
 
             const riverGeometry = new THREE.ShapeGeometry(riverShape);
             const riverMaterial = new THREE.MeshPhongMaterial({
@@ -966,9 +928,6 @@
             const river = new THREE.Mesh(riverGeometry, riverMaterial);
             river.rotation.x = -Math.PI / 2;
             river.position.y = 0.5;
-            
-            // Add flow animation properties
-            river.userData.flowOffset = 0;
             
             scene.add(river);
             return river;
@@ -1007,33 +966,63 @@
             minimapRenderer.setSize(200, 200);
             minimapDiv.appendChild(minimapRenderer.domElement);
 
-            // Create simplified versions of scene objects for minimap
             function createMinimapObjects() {
-                // Terrain outline
-                const terrainShape = new THREE.Shape();
-                terrainShape.moveTo(-500, -500);
-                terrainShape.lineTo(500, -500);
-                terrainShape.lineTo(500, 500);
-                terrainShape.lineTo(-500, 500);
-                terrainShape.closePath();
+                // Create heightmap for terrain visualization
+                const terrainGeometry = new THREE.PlaneGeometry(1000, 1000, 100, 100);
+                const vertices = terrainGeometry.attributes.position.array;
                 
-                const terrainGeometry = new THREE.ShapeGeometry(terrainShape);
-                const terrainMaterial = new THREE.MeshBasicMaterial({ color: 0x90EE90 });
+                for (let i = 0; i < vertices.length; i += 3) {
+                    const x = vertices[i];
+                    const z = vertices[i + 2];
+                    vertices[i + 1] = getHeightAtPosition(x, z) * 0.5; // Scale height for visualization
+                }
+                
+                const terrainMaterial = new THREE.MeshPhongMaterial({
+                    vertexColors: true,
+                    wireframe: true
+                });
+                
+                // Add vertex colors based on height
+                const colors = [];
+                for (let i = 0; i < vertices.length; i += 3) {
+                    const height = vertices[i + 1];
+                    const color = new THREE.Color();
+                    
+                    if (height < 2) {
+                        color.setHex(0x0077be); // Water
+                    } else if (height < 5) {
+                        color.setHex(0x90EE90); // Grass
+                    } else if (height < 15) {
+                        color.setHex(0x228B22); // Forest
+                    } else {
+                        color.setHex(0x808080); // Mountains
+                    }
+                    
+                    colors.push(color.r, color.g, color.b);
+                }
+                
+                terrainGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
                 const terrainMesh = new THREE.Mesh(terrainGeometry, terrainMaterial);
                 terrainMesh.rotation.x = -Math.PI / 2;
                 minimapScene.add(terrainMesh);
-
-                // Player marker (white dot)
+                
+                // Add light to minimap scene
+                const light = new THREE.DirectionalLight(0xffffff, 1);
+                light.position.set(0, 1, 0);
+                minimapScene.add(light);
+                minimapScene.add(new THREE.AmbientLight(0xffffff, 0.5));
+                
+                // Player marker
                 const playerMarker = new THREE.Mesh(
-                    new THREE.CircleGeometry(5, 32),
-                    new THREE.MeshBasicMaterial({ color: 0xffffff })
+                    new THREE.ConeGeometry(5, 10, 8),
+                    new THREE.MeshBasicMaterial({ color: 0xffff00 })
                 );
-                playerMarker.rotation.x = -Math.PI / 2;
+                playerMarker.rotation.x = Math.PI / 2;
                 minimapScene.add(playerMarker);
-
-                return { playerMarker };
+                
+                return { playerMarker, terrainMesh };
             }
-
+            
             const minimapObjects = createMinimapObjects();
 
             // Update minimap
@@ -1044,6 +1033,225 @@
             }
 
             return updateMinimap;
+        }
+
+        // Add collision detection function
+        function checkCollision(position) {
+            const height = getHeightAtPosition(position.x, position.z);
+            const maxClimbableSlope = 1; // Maximum height difference player can climb
+            const currentHeight = position.y - PLAYER_HEIGHT;
+            
+            // Check if trying to climb too steep
+            if (Math.abs(height - currentHeight) > maxClimbableSlope) {
+                return false;
+            }
+            return true;
+        }
+
+        // Add animal interaction function
+        function interactWithAnimals() {
+            const interactionRange = 5;
+            const playerPosition = camera.position.clone();
+            
+            animals.forEach(animal => {
+                const distance = playerPosition.distanceTo(animal.position);
+                
+                if (distance < interactionRange) {
+                    switch(animal.userData.type) {
+                        case 'deer':
+                            // Deer runs away
+                            animal.userData.state = 'running';
+                            const awayVector = animal.position.clone()
+                                .sub(playerPosition)
+                                .normalize()
+                                .multiplyScalar(2);
+                            animal.userData.velocity.add(awayVector);
+                            break;
+                            
+                        case 'bird':
+                            // Bird takes flight
+                            if (animal.position.y < 30) {
+                                animal.userData.velocity.y = 1;
+                            }
+                            break;
+                            
+                        case 'duck':
+                            // Duck quacks and splashes
+                            if (!animal.userData.isQuacking) {
+                                animal.userData.isQuacking = true;
+                                animal.position.y += 0.5;
+                                setTimeout(() => {
+                                    animal.position.y -= 0.5;
+                                    animal.userData.isQuacking = false;
+                                }, 500);
+                            }
+                            break;
+                            
+                        case 'peacock':
+                            // Peacock displays feathers
+                            if (!animal.userData.isDisplaying) {
+                                animal.userData.isDisplaying = true;
+                                animal.children.forEach(child => {
+                                    if (child.userData.isFeather) {
+                                        child.rotation.x += Math.PI / 4;
+                                    }
+                                });
+                                setTimeout(() => {
+                                    animal.children.forEach(child => {
+                                        if (child.userData.isFeather) {
+                                            child.rotation.x -= Math.PI / 4;
+                                        }
+                                    });
+                                    animal.userData.isDisplaying = false;
+                                }, 2000);
+                            }
+                            break;
+                    }
+                }
+            });
+        }
+
+        // Add this function to create a dragon
+        function createDragon() {
+            const dragon = new THREE.Group();
+            
+            // Body
+            const bodyGeometry = new THREE.CapsuleGeometry(3, 8, 4, 8);
+            const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0x8B0000 });
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.rotation.z = Math.PI / 2;
+            dragon.add(body);
+            
+            // Head
+            const headGeometry = new THREE.ConeGeometry(2, 4, 8);
+            const head = new THREE.Mesh(headGeometry, bodyMaterial);
+            head.position.set(5, 1, 0);
+            head.rotation.z = -Math.PI / 2;
+            dragon.add(head);
+            
+            // Wings
+            const wingGeometry = new THREE.PlaneGeometry(10, 8);
+            const wingMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0x8B0000,
+                side: THREE.DoubleSide,
+                transparent: true,
+                opacity: 0.9
+            });
+            
+            const leftWing = new THREE.Mesh(wingGeometry, wingMaterial);
+            leftWing.position.set(0, 4, -4);
+            leftWing.rotation.y = Math.PI / 4;
+            dragon.add(leftWing);
+            
+            const rightWing = new THREE.Mesh(wingGeometry, wingMaterial);
+            rightWing.position.set(0, 4, 4);
+            rightWing.rotation.y = -Math.PI / 4;
+            dragon.add(rightWing);
+            
+            // Tail
+            const tailGeometry = new THREE.CylinderGeometry(0.5, 0.1, 10);
+            const tail = new THREE.Mesh(tailGeometry, bodyMaterial);
+            tail.position.set(-6, 0, 0);
+            tail.rotation.z = Math.PI / 6;
+            dragon.add(tail);
+            
+            // Animation properties
+            dragon.userData.flyingHeight = 100;
+            dragon.userData.originalPosition = new THREE.Vector3(0, 100, 0);
+            dragon.userData.time = 0;
+            
+            return dragon;
+        }
+
+        // Add this function to create a flower field
+        function createFlowerField() {
+            const flowers = new THREE.Group();
+            const flowerColors = [0xFF69B4, 0xFFFF00, 0xFF0000, 0x800080, 0xFFA500];
+            
+            for (let i = 0; i < 1000; i++) {
+                const x = Math.random() * 800 - 400;
+                const z = Math.random() * 800 - 400;
+                const y = getHeightAtPosition(x, z);
+                
+                if (y > 0 && y < 15) { // Only place flowers on suitable terrain
+                    const flower = createFlower(flowerColors[Math.floor(Math.random() * flowerColors.length)]);
+                    flower.position.set(x, y, z);
+                    flower.scale.set(0.3, 0.3, 0.3);
+                    flower.userData.isFlower = true;
+                    flowers.add(flower);
+                }
+            }
+            
+            scene.add(flowers);
+        }
+
+        function createFlower(color) {
+            const flower = new THREE.Group();
+            
+            // Stem
+            const stemGeometry = new THREE.CylinderGeometry(0.1, 0.1, 2);
+            const stemMaterial = new THREE.MeshPhongMaterial({ color: 0x00FF00 });
+            const stem = new THREE.Mesh(stemGeometry, stemMaterial);
+            flower.add(stem);
+            
+            // Petals
+            const petalCount = 8;
+            const petalGeometry = new THREE.PlaneGeometry(1, 0.5);
+            const petalMaterial = new THREE.MeshPhongMaterial({ 
+                color: color,
+                side: THREE.DoubleSide
+            });
+            
+            for (let i = 0; i < petalCount; i++) {
+                const petal = new THREE.Mesh(petalGeometry, petalMaterial);
+                const angle = (i / petalCount) * Math.PI * 2;
+                petal.position.y = 1;
+                petal.rotation.y = angle;
+                flower.add(petal);
+            }
+            
+            return flower;
+        }
+
+        // Add interaction text display
+        function createInteractionText() {
+            const div = document.createElement('div');
+            div.style.position = 'absolute';
+            div.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+            div.style.color = 'white';
+            div.style.padding = '5px';
+            div.style.borderRadius = '5px';
+            div.style.display = 'none';
+            div.style.pointerEvents = 'none';
+            document.body.appendChild(div);
+            return div;
+        }
+
+        // Update mouse position
+        function onMouseMove(event) {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        }
+
+        // Handle mouse click interactions
+        function onMouseClick(event) {
+            if (hoveredObject) {
+                if (hoveredObject.userData.isFlower) {
+                    // Make flower sway
+                    const flower = hoveredObject;
+                    flower.userData.swaying = true;
+                    setTimeout(() => flower.userData.swaying = false, 2000);
+                } else if (hoveredObject.userData.type === 'deer') {
+                    // Make deer jump
+                    const deer = hoveredObject;
+                    deer.position.y += 2;
+                    setTimeout(() => deer.position.y -= 2, 500);
+                } else if (hoveredObject.userData.type === 'bird') {
+                    // Make bird chirp and fly
+                    const bird = hoveredObject;
+                    bird.userData.velocity.y = 2;
+                }
+            }
         }
     </script>
 </body>

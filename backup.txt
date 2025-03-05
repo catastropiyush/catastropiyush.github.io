@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Piyush R. Maharana - Academic Website</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.16/tailwind.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+</head>
+<body class="font-sans bg-gray-100">
+    <header class="bg-gray-800 text-white py-8 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center">
+            <div>
+                <img src="H8RWOYre_400x400.jpg" alt="Description of the image" class="rounded-full h-20 w-20 mr-4">
+                <h1 class="text-2xl font-bold">Piyush R. Maharana</h1>
+                <h2 class="text-gray-400">Large Language Models | Machine Learning | Material Discovery</h2>
+            </div>
+            <nav>
+                <ul class="flex space-x-4">
+                    <li><a href="#about" class="hover:text-gray-300">About</a></li>
+                    <li><a href="#education" class="hover:text-gray-300">Education</a></li>
+                    <li><a href="#contact" class="hover:text-gray-300">Contact</a></li>
+                    <li><a href="#skills" class="hover:text-gray-300">Skills</a></li>
+                    <li><a href="#experience" class="hover:text-gray-300">Experience</a></li>
+                    <li><a href="#publications" class="hover:text-gray-300">Publications</a></li>
+                    <li><a href="#courses" class="hover:text-gray-300">Courses</a></li>
+                    <li><a href="#misc" class="hover:text-gray-300">Miscellaneous</a></li>
+                    <li><a href="#extracurriculars" class="hover:text-gray-300">Extracurriculars</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mx-auto my-8 px-4">
+        <section id="about" class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">About Me</h2>
+            <p class="text-gray-600 leading-relaxed">
+                Project associate at CSIR-National Chemical Laboratory. Working on computational material discovery and retrosynthesis.
+            </p>
+        </section>
+
+        <section id="contact" class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">Get in Touch</h2>
+            <p class="text-gray-600 leading-relaxed">
+                I'd love to connect :)
+            </p>
+            <ul class="space-y-2 mt-4">
+                <li><a href="https://github.com/catastropiyush" class="text-blue-500 hover:underline"><i class="fab fa-github text-gray-500 mr-2"></i> Github</a></li>
+                <li><a href="https://www.linkedin.com/in/piyush-ranjan-maharana-1b14b2197/" class="text-blue-500 hover:underline"><i class="fab fa-linkedin text-gray-500 mr-2"></i> Linkedin</a></li>
+            </ul>
+        </section>
+        
+        <section id="education" class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">Education</h2>
+            <div class="space-y-4">
+                <div>
+                    <h3 class="text-lg font-bold">M.Sc Computational Physics</h3>
+                    <p class="text-gray-600">Central University of Punjab, Punjab, India</p>
+                    <p class="text-gray-600">November 2021 - June 2023</p>
+                    <p class="text-gray-600">Courses: Numerical Methods, Electronic Structure Theory, Molecular Dynamics, Density Functional Theory, Atomic and Molecular Spectroscopy</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold">B.Sc Physics</h3>
+                    <p class="text-gray-600">University of Delhi, New Delhi, India</p>
+                    <p class="text-gray-600">June 2018 - June 2021</p>
+                    <p class="text-gray-600">Courses: Classical Mechanics, Quantum Mechanics, Electromagnetic Theory, Statistical Mechanics, Nuclear Physics, Mathematical Physics</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="skills" class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">Skills</h2>
+            <ul class="space-y-2">
+                <li>Languages: Python, FORTRAN, C++</li>
+                <li>Softwares: QUANTICS, ORCA, VASP, LAMMPS</li>
+                <li>Interests: Large Language Models, Natural Language Processing, Neural Network Potentials, Mechanistic Interpretability</li>
+            </ul>
+        </section>
+
+        <section id="experience" class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">Experience</h2>
+            <div>
+                <h3 class="text-lg font-bold">Project Associate</h3>
+                <p class="text-gray-600">CSIR-National Chemical Laboratory, India</p>
+                <p class="text-gray-600">Advisor - Dr. Kavita Joshi</p>
+                <p class="text-gray-600">August 2023 - Present</p>
+                <p class="text-gray-600">Using Natural Language Processing and Large Language Models for scientific data extraction from literature to create databases for training machine learning models for hydrogen storage applications.</p>
+            </div>
+        </section>
+
+        <section id="publications" class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">Publications</h2>
+            <div class="space-y-4">
+                <div>
+                    <h3 class="text-lg font-bold">Retrieval Augmented Generation for extraction of data from scientific literature</h3>
+                    <p class="text-gray-600">Preprint, Nov 2024</p>
+                    <p class="text-gray-600">Abstract: Using large language models paired with retrieval augmented generation, a dataset of metal hydrides for solid-state hydrogen storage was created. The accuracy obtained was 93% in the cases tested. Thus, we demonstrate a pipeline to create datasets from scientific literature at minimal computational cost and high accuracy.</p>
+                    <li><a href="https://chemrxiv.org/engage/chemrxiv/article-details/673c541a7be152b1d0981fd7" class="text-blue-500 hover:underline"></i>Paper</a></li>
+
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold">HyStor: An Experimental Database of Hydrogen Storage Properties</h3>
+                    <p class="text-gray-600">Co-author, May 2024</p>
+                    <p class="text-gray-600">Abstract: In this work, we introduce the HyStor database, consisting of 1280 metal alloys along with their hydrogen storage capacities (H2 wt%) as a function of absorption temperature. Given the lack of updates in the existing open access HydPark database since 2002, we sourced compositions from recent research articles and various patent documents, resulting in a total of 468 compositions.</p>
+                    <li><a href="https://www.sciencedirect.com/science/article/pii/S0360319924041168?via%3Dihub" class="text-blue-500 hover:underline"></i>Paper</a></li>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold">Quantum Dynamics of H2 formation on interstellar dust grains</h3>
+                    <p class="text-gray-600">Master's Thesis, Central University of Punjab, India</p>
+                    <p class="text-gray-600">Advisor - Dr. Kousik Giri, February - June 2023</p>
+                    <p class="text-gray-600">Abstract: The details of H2 formation in the interstellar medium are still unclear. Using MCTDH the dynamics of the formed H2 molecule on a carbonaceous surface was determined to understand the partitioning of the H2 recombination energy in the collinear Eley-Rideal mechanism. Our results show the introduction of the atoms neighbouring the carbon over which H is chemisorbed into the PES of Coronene C24H12, gives the correct energy partitioning with the nascent H2 taking ∼ 85% of the recombination energy.</p>
+                    <img src="coronene.png" alt="Quantum dynamics of coronene">
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold">Structure and Kinematics of the Milky Way Galaxy using Atomic Hydrogen</h3>
+                    <p class="text-gray-600">Conference Paper, June 2021</p>
+                    <p class="text-gray-600">Abstract: Presented this paper based on my undergrad thesis in 3rd International Conference on Recent Advances In Fundamental And Applied Sciences (RAFAS), 25-26 June 2021.</p>
+                    <li><a href="https://iopscience.iop.org/article/10.1088/1742-6596/2267/1/012053/meta" class="text-blue-500 hover:underline"></i>Paper</a></li>
+                    <img src="rotation_curve.png" alt="Rotation Curve of Milky Way">
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold">Spiral Structure and Dynamics of the Milky Way Galaxy</h3>
+                    <p class="text-gray-600">Undergraduate Thesis, University of Delhi, India</p>
+                    <p class="text-gray-600">Advisor - Dr. Vandana Batra, January - June 2021</p>
+                    <p class="text-gray-600">Abstract: The hyper-fine transition of atomic hydrogen produces radiation of ν=1.4 GHz which is used to detect intergalactic HI gas in the Milky Way. An observation was carried out from 20° < l < 220° and −20° < b < 20° in steps of 5° using the remotely operated SALSA-Onsala 2.3m Radio Telescope located at Onsala Space Observatory, Sweden. The Perseus, Local and Outer arms of the Milky Way Galaxy were clearly identified. Using the Tangent Point Method the rotation curve till the solar circle was determined giving a value of Vc(Ro) = 240.16 ± 7.03kms−1.</p>
+                    <img src="face_on_map.png" alt="Face on map of the galaxy">
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold">Spectral Index of Synchrotron emission of Crab Nebula</h3>
+                    <p class="text-gray-600">University of Delhi, India</p>
+                    <p class="text-gray-600">Advisor - Dr. Vandana Batra, September 2020</p>
+                    <p class="text-gray-600">Abstract: Using archival flux density data ranging from radio to optical from different observations, the spectral index of the nebula in the different electromagnetic regimes was determined.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="courses" class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">Courses and Workshops</h2>
+            <div class="space-y-4">
+                <div>
+                    <h3 class="text-lg font-bold">IIIT Hyderabad - 8th Summer School on AI</h3>
+                    <p class="text-gray-600">July 2024</p>
+                    <p class="text-gray-600">Research training event aiming at equipping participants with the relevant advances in the critical and fast developing area of artificial intelligence.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold">UCL - Future of Materials Discovery Workshop</h3>
+                    <p class="text-gray-600">June 2024</p>
+                    <p class="text-gray-600">Workshop on AI and machine learning in the physical sciences.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold">LLM Hackathon for Applications in Materials and Chemistry</h3>
+                    <p class="text-gray-600">May 2024</p>
+                    <p class="text-gray-600">Teamed up with the University of Liverpool to apply LLMs to improve property prediction for chemical compositions.</p>
+                    <div class="video-container">
+                        <iframe src="https://www.youtube.com/embed/fQVjRmM-Hf4"
+                                title="YouTube video player"
+                                frameborder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen>
+                        </iframe>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold">IISER Pune - Natural Language Processing</h3>
+                    <p class="text-gray-600">January - May 2024</p>
+                    <p class="text-gray-600">Attended this semester course on NLP.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold">CDAC - Quantum Accelerated Computing</h3>
+                    <p class="text-gray-600">December 2023</p>
+                    <p class="text-gray-600">Attended lectures and hands-on session on Quantum Computing.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold">IUCAA - Introductory Summer School in Astronomy and Astrophysics</h3>
+                    <p class="text-gray-600">May - June 2021</p>
+                    <p class="text-gray-600">Attended lectures on various different topics in astrophysics.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold">RAD @ Home</h3>
+                    <p class="text-gray-600">June 2021</p>
+                    <p class="text-gray-600">Learned how to make images using the data collected by GMRT and other telescopes and understand UV-optical-IR-radio (RGB-C) images of galaxies to classify galaxies into different subtypes.</p>
+                </div>
+            </div>
+        </section>
+
+<section id="misc" class="bg-white rounded-lg shadow-md p-6 mb-8">
+    <h2 class="text-2xl font-bold mb-4 text-gray-800">Miscellaneous/Fun</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+        <div class="bg-gray-50 p-4 rounded-lg shadow-sm">
+            <h3 class="text-lg font-bold mb-3 text-gray-700">Neutron Diffusion Equation</h3>
+            <div class="flex flex-col items-center space-y-3">
+                <img src="neutron_diffusion.jpeg" alt="Diffusion equation" class="max-w-full h-auto object-cover rounded-md">
+                <img src="implosion.gif" alt="implosion simulation" class="max-w-full h-auto object-cover rounded-md">
+            </div>
+        </div>
+
+        <div class="bg-gray-50 p-4 rounded-lg shadow-sm">
+            <h3 class="text-lg font-bold mb-3 text-gray-700">Mayan Hieroglyphics</h3>
+            <div class="flex flex-col items-center space-y-3">
+                <img src="IMG_20241126_161905673.jpg" width="500" height="700" alt="Mayan hieroglyphics" class="max-w-full h-auto object-cover rounded-md">
+            </div>
+        </div>
+
+        <div class="bg-gray-50 p-4 rounded-lg shadow-sm">
+            <h3 class="text-lg font-bold mb-3 text-gray-700">Numerical Methods</h3>
+            <div class="flex flex-col items-center space-y-3">
+                <img src="gaussian_elimination(1).gif" width="500" height="700" alt="matrix" class="max-w-full h-auto object-cover rounded-md">
+            </div>
+        </div>
+
+        <div class="bg-gray-50 p-4 rounded-lg shadow-sm">
+            <h3 class="text-lg font-bold mb-3 text-gray-700">1D Hard Disks</h3>
+            <div class="flex flex-col items-center space-y-3">
+                <img src="cloth_pin.png" alt="pin model" class="max-w-full h-auto object-cover rounded-md">
+            </div>
+        </div>
+    </div>
+        <li><a href="rdkit_SMILES.html" class="hover:text-gray-300">RDKIT Reaction Visualizer</a>
+        <li><a href="arxiv_search.html" class="hover:text-gray-300">arXiV Paper Explorer </a></li>
+        <li><a href="game.html" class="hover:text-gray-300">RPG world </a></li>
+</section>
+        
+        <section id="extracurriculars" class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">Extracurricular Activities</h2>
+            <div class="space-y-4">
+                <div>
+                    <h3 class="text-lg font-bold">Volunteering</h3>
+                    <p class="text-gray-600">August 2023 - Present</p>
+                    <p class="text-gray-600">I teach kids and distribute surplus food to those in need as part of the NGO Robin Hood Army.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold">Astronomy Club</h3>
+                    <p class="text-gray-600">2018 - 2022</p>
+                    <p class="text-gray-600">Searching for suspected comets visible in SOHO/LASCO satellite images by participating in the Sungrazer project and taking part in astronomical observations and workshops and lectures on astrophysics and programming at Nehru planetarium.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold">International Asteroid Search Campaign</h3>
+                    <p class="text-gray-600">April - May 2018</p>
+                    <p class="text-gray-600">Two provisional asteroid discoveries recorded.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold">Supernova Hunters</h3>
+                    <p class="text-gray-600">2017 - 2019</p>
+                    <p class="text-gray-600">Discovered supernovas in Pan-STARRS1 data as part of a citizen science project.</p>
+                </div>
+                <a href="https://info.flagcounter.com/yO6W"><img src="https://s01.flagcounter.com/map/yO6W/size_s/txt_000000/border_CCCCCC/pageviews_0/viewers_0/flags_0/" alt="Flag Counter" border="0"></a>
+            </div>
+        </section>

@@ -141,16 +141,6 @@
             z-index: 1000;
         }
 
-        #three-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            opacity: 0.8;
-        }
-
         .header-content {
             background: rgba(31, 41, 55, 0.95);
             backdrop-filter: blur(10px);
@@ -481,8 +471,6 @@
         </section>
     </main>
 
-    <div id="three-container"></div>
-
     <script>
         // Smooth scroll
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -506,130 +494,6 @@
         document.querySelectorAll('section').forEach((section) => {
             observer.observe(section);
         });
-
-        // Particle background
-        particlesJS("particles-js", {
-            particles: {
-                number: { value: 80 },
-                color: { value: "#ffffff" },
-                shape: { type: "circle" },
-                opacity: { value: 0.5 },
-                size: { value: 3 },
-                move: { enable: true, speed: 2 }
-            }
-        });
-
-        import * as THREE from 'three';
-        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-
-        // Scene setup
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.getElementById('three-container').appendChild(renderer.domElement);
-
-        // Create floating molecules
-        function createMolecule() {
-            const group = new THREE.Group();
-            
-            // Create atoms
-            const atomGeometry = new THREE.SphereGeometry(0.3, 32, 32);
-            const materials = [
-                new THREE.MeshPhongMaterial({ color: 0xff0000 }),
-                new THREE.MeshPhongMaterial({ color: 0x00ff00 }),
-                new THREE.MeshPhongMaterial({ color: 0x0000ff })
-            ];
-
-            for (let i = 0; i < 3; i++) {
-                const atom = new THREE.Mesh(atomGeometry, materials[i]);
-                atom.position.set(
-                    Math.cos(i * Math.PI * 2/3) * 0.5,
-                    Math.sin(i * Math.PI * 2/3) * 0.5,
-                    0
-                );
-                group.add(atom);
-            }
-
-            // Create bonds
-            const bondGeometry = new THREE.CylinderGeometry(0.05, 0.05, 1);
-            const bondMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff });
-            
-            for (let i = 0; i < 3; i++) {
-                const bond = new THREE.Mesh(bondGeometry, bondMaterial);
-                bond.position.set(
-                    Math.cos(i * Math.PI * 2/3) * 0.25,
-                    Math.sin(i * Math.PI * 2/3) * 0.25,
-                    0
-                );
-                bond.lookAt(new THREE.Vector3(0, 0, 0));
-                group.add(bond);
-            }
-
-            return group;
-        }
-
-        // Add multiple molecules
-        const molecules = [];
-        for (let i = 0; i < 15; i++) {
-            const molecule = createMolecule();
-            molecule.position.set(
-                Math.random() * 20 - 10,
-                Math.random() * 20 - 10,
-                Math.random() * 20 - 10
-            );
-            molecule.rotation.set(
-                Math.random() * Math.PI,
-                Math.random() * Math.PI,
-                Math.random() * Math.PI
-            );
-            molecules.push(molecule);
-            scene.add(molecule);
-        }
-
-        // Lighting
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-        scene.add(ambientLight);
-
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-        directionalLight.position.set(10, 10, 10);
-        scene.add(directionalLight);
-
-        // Camera position
-        camera.position.z = 15;
-
-        // Controls
-        const controls = new OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.dampingFactor = 0.05;
-        controls.enableZoom = false;
-
-        // Animation
-        function animate() {
-            requestAnimationFrame(animate);
-
-            // Rotate molecules
-            molecules.forEach((molecule, i) => {
-                molecule.rotation.x += 0.001 * (i + 1);
-                molecule.rotation.y += 0.002 * (i + 1);
-                
-                // Add floating motion
-                molecule.position.y += Math.sin(Date.now() * 0.001 + i) * 0.01;
-            });
-
-            controls.update();
-            renderer.render(scene, camera);
-        }
-
-        // Handle window resize
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-
-        // Start animation
-        animate();
     </script>
 </body>
 </html>

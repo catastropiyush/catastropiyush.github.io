@@ -155,6 +155,48 @@
             background: rgba(31, 41, 55, 0.95);
             backdrop-filter: blur(10px);
         }
+
+        /* Tooltip container */
+        .tooltip-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        /* Tooltip text */
+        .tooltip {
+            visibility: hidden;
+            width: 300px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            text-align: center;
+            padding: 10px;
+            border-radius: 6px;
+            position: absolute;
+            z-index: 1000;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        /* Show tooltip on hover */
+        .tooltip-container:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Arrow for tooltip */
+        .tooltip::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: rgba(0, 0, 0, 0.8) transparent transparent transparent;
+        }
     </style>
 </head>
 <body class="font-sans bg-gray-100">
@@ -267,21 +309,42 @@
                     <p class="text-gray-600">Master's Thesis, Central University of Punjab, India</p>
                     <p class="text-gray-600">Advisor - Dr. Kousik Giri, February - June 2023</p>
                     <p class="text-gray-600">Abstract: The details of H2 formation in the interstellar medium are still unclear. Using MCTDH the dynamics of the formed H2 molecule on a carbonaceous surface was determined to understand the partitioning of the H2 recombination energy in the collinear Eley-Rideal mechanism. Our results show the introduction of the atoms neighbouring the carbon over which H is chemisorbed into the PES of Coronene C24H12, gives the correct energy partitioning with the nascent H2 taking ∼ 85% of the recombination energy.</p>
-                    <img src="coronene.png" alt="Quantum dynamics of coronene">
+                    <div class="tooltip-container">
+                        <img src="coronene.png" alt="Quantum dynamics of coronene" class="max-w-full h-auto object-cover rounded-md">
+                        <div class="tooltip">
+                            This image shows the quantum dynamics simulation of H2 formation on a coronene molecule (C24H12). 
+                            The bright spots represent areas of high probability density for hydrogen atoms, 
+                            demonstrating the quantum mechanical behavior of the system during the formation process.
+                        </div>
+                    </div>
                 </div>
                 <div>
                     <h3 class="text-lg font-bold">Structure and Kinematics of the Milky Way Galaxy using Atomic Hydrogen</h3>
                     <p class="text-gray-600">Conference Paper, June 2021</p>
                     <p class="text-gray-600">Abstract: Presented this paper based on my undergrad thesis in 3rd International Conference on Recent Advances In Fundamental And Applied Sciences (RAFAS), 25-26 June 2021.</p>
                     <li><a href="https://iopscience.iop.org/article/10.1088/1742-6596/2267/1/012053/meta" class="text-blue-500 hover:underline"></i>Paper</a></li>
-                    <img src="rotation_curve.png" alt="Rotation Curve of Milky Way">
+                    <div class="tooltip-container">
+                        <img src="rotation_curve.png" alt="Rotation Curve of Milky Way" class="max-w-full h-auto object-cover rounded-md">
+                        <div class="tooltip">
+                            Rotation curve of the Milky Way Galaxy derived from HI observations. 
+                            The plot shows orbital velocity versus distance from the galactic center, 
+                            revealing the presence of dark matter through the flat rotation curve at large radii.
+                        </div>
+                    </div>
                 </div>
                 <div>
                     <h3 class="text-lg font-bold">Spiral Structure and Dynamics of the Milky Way Galaxy</h3>
                     <p class="text-gray-600">Undergraduate Thesis, University of Delhi, India</p>
                     <p class="text-gray-600">Advisor - Dr. Vandana Batra, January - June 2021</p>
                     <p class="text-gray-600">Abstract: The hyper-fine transition of atomic hydrogen produces radiation of ν=1.4 GHz which is used to detect intergalactic HI gas in the Milky Way. An observation was carried out from 20° < l < 220° and −20° < b < 20° in steps of 5° using the remotely operated SALSA-Onsala 2.3m Radio Telescope located at Onsala Space Observatory, Sweden. The Perseus, Local and Outer arms of the Milky Way Galaxy were clearly identified. Using the Tangent Point Method the rotation curve till the solar circle was determined giving a value of Vc(Ro) = 240.16 ± 7.03kms−1.</p>
-                    <img src="face_on_map.png" alt="Face on map of the galaxy">
+                    <div class="tooltip-container">
+                        <img src="face_on_map.png" alt="Face on map of the galaxy" class="max-w-full h-auto object-cover rounded-md">
+                        <div class="tooltip">
+                            Face-on view of the Milky Way Galaxy reconstructed from HI observations. 
+                            The map shows the distribution of neutral hydrogen gas, revealing the spiral arm structure 
+                            and large-scale features of our galaxy.
+                        </div>
+                    </div>
                 </div>
                 <div>
                     <h3 class="text-lg font-bold">Spectral Index of Synchrotron emission of Crab Nebula</h3>
@@ -362,14 +425,26 @@
         <div class="bg-gray-50 p-4 rounded-lg shadow-sm">
             <h3 class="text-lg font-bold mb-3 text-gray-700">Numerical Methods</h3>
             <div class="flex flex-col items-center space-y-3">
-                <img src="gaussian_elimination(1).gif" width="500" height="700" alt="matrix" class="max-w-full h-auto object-cover rounded-md">
+                <div class="tooltip-container">
+                    <img src="gaussian_elimination(1).gif" width="500" height="700" alt="matrix" class="max-w-full h-auto object-cover rounded-md">
+                    <div class="tooltip">
+                        Animation demonstrating the Gaussian elimination method for solving systems of linear equations. 
+                        The process shows how the matrix is transformed into row echelon form through elementary row operations.
+                    </div>
+                </div>
             </div>
         </div>
 
         <div class="bg-gray-50 p-4 rounded-lg shadow-sm">
             <h3 class="text-lg font-bold mb-3 text-gray-700">1D Hard Disks</h3>
             <div class="flex flex-col items-center space-y-3">
-                <img src="cloth_pin.png" alt="pin model" class="max-w-full h-auto object-cover rounded-md">
+                <div class="tooltip-container">
+                    <img src="cloth_pin.png" alt="pin model" class="max-w-full h-auto object-cover rounded-md">
+                    <div class="tooltip">
+                        Visualization of a 1D hard disk system, modeling molecular dynamics in a confined space. 
+                        The pins represent particles that can only move along a line while maintaining minimum separation distances.
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -402,33 +477,6 @@
                     <p class="text-gray-600">Discovered supernovas in Pan-STARRS1 data as part of a citizen science project.</p>
                 </div>
                 <a href="https://info.flagcounter.com/yO6W"><img src="https://s01.flagcounter.com/map/yO6W/size_s/txt_000000/border_CCCCCC/pageviews_0/viewers_0/flags_0/" alt="Flag Counter" border="0"></a>
-            </div>
-        </section>
-
-        <section id="game-preview" class="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h2 class="text-2xl font-bold mb-4 text-gray-800">Making a game :)</h2>
-            <div class="space-y-4">
-                <div class="bg-gray-50 p-6 rounded-lg">
-                    <h3 class="text-lg font-bold mb-3"></h3>
-                    <div class="aspect-w-16 aspect-h-9 mb-4">
-                        <iframe src="game.html" 
-                                class="w-full h-96 rounded-lg shadow-lg" 
-                                style="pointer-events: none;">
-                        </iframe>
-                    </div>
-                    <div class="space-y-2">
-                        <p class="text-gray-700"><span class="font-bold">Features:</span></p>
-                        <ul class="list-disc list-inside text-gray-600 space-y-1">
-                            <li>Explore a vast new world.</li>
-                        </ul>
-                        <div class="mt-4">
-                            <a href="game.html" 
-                               class="inline-block bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors">
-                                Play →
-                            </a>
-                        </div>
-                    </div>
-                </div>
             </div>
         </section>
     </main>

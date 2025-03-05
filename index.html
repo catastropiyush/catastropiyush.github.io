@@ -6,6 +6,156 @@
     <title>Piyush R. Maharana - Academic Website</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.16/tailwind.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+    <script async src="https://unpkg.com/es-module-shims/dist/es-module-shims.js"></script>
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.159.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.159.0/examples/jsm/"
+        }
+    }
+    </script>
+    <style>
+        /* Animated gradient background */
+        body {
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Hover effects for sections */
+        section {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            background: rgba(255, 255, 255, 0.9) !important;
+            backdrop-filter: blur(10px);
+        }
+
+        section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        /* Cool navigation menu */
+        nav ul li a {
+            position: relative;
+            padding: 5px 10px;
+            transition: all 0.3s ease;
+        }
+
+        nav ul li a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background-color: #4CAF50;
+            transition: width 0.3s ease;
+        }
+
+        nav ul li a:hover::after {
+            width: 100%;
+        }
+
+        /* Skill badges */
+        .skill-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            margin: 4px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .skill-badge:hover {
+            transform: scale(1.1);
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* Publication cards */
+        .publication-card {
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+            background: rgba(255,255,255,0.9);
+            transition: all 0.3s ease;
+        }
+
+        .publication-card:hover {
+            transform: scale(1.02);
+        }
+
+        /* Cool image gallery */
+        .image-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .gallery-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.1);
+        }
+
+        /* Animated social icons */
+        .social-icons a {
+            display: inline-block;
+            margin: 0 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .social-icons a:hover {
+            transform: translateY(-5px) rotate(360deg);
+        }
+
+        /* Dark mode toggle */
+        .dark-mode-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.1);
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        #three-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.8;
+        }
+
+        .header-content {
+            background: rgba(31, 41, 55, 0.95);
+            backdrop-filter: blur(10px);
+        }
+    </style>
 </head>
 <body class="font-sans bg-gray-100">
     <header class="bg-gray-800 text-white py-8 shadow-lg">
@@ -70,11 +220,19 @@
 
         <section id="skills" class="bg-white rounded-lg shadow-md p-6 mb-8">
             <h2 class="text-2xl font-bold mb-4 text-gray-800">Skills</h2>
-            <ul class="space-y-2">
-                <li>Languages: Python, FORTRAN, C++</li>
-                <li>Softwares: QUANTICS, ORCA, VASP, LAMMPS</li>
-                <li>Interests: Large Language Models, Natural Language Processing, Neural Network Potentials, Mechanistic Interpretability</li>
-            </ul>
+            <div class="flex flex-wrap gap-2">
+                <span class="skill-badge">Python</span>
+                <span class="skill-badge">FORTRAN</span>
+                <span class="skill-badge">C++</span>
+                <span class="skill-badge">QUANTICS</span>
+                <span class="skill-badge">ORCA</span>
+                <span class="skill-badge">VASP</span>
+                <span class="skill-badge">LAMMPS</span>
+                <span class="skill-badge">Large Language Models</span>
+                <span class="skill-badge">Natural Language Processing</span>
+                <span class="skill-badge">Neural Network Potentials</span>
+                <span class="skill-badge">Mechanistic Interpretability</span>
+            </div>
         </section>
 
         <section id="experience" class="bg-white rounded-lg shadow-md p-6 mb-8">
@@ -246,3 +404,166 @@
                 <a href="https://info.flagcounter.com/yO6W"><img src="https://s01.flagcounter.com/map/yO6W/size_s/txt_000000/border_CCCCCC/pageviews_0/viewers_0/flags_0/" alt="Flag Counter" border="0"></a>
             </div>
         </section>
+    </main>
+
+    <button class="dark-mode-toggle" onclick="toggleDarkMode()">
+        <i class="fas fa-moon"></i>
+    </button>
+
+    <div id="three-container"></div>
+
+    <script>
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Dark mode toggle
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+        }
+
+        // Intersection Observer for fade-in animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in');
+                }
+            });
+        });
+
+        document.querySelectorAll('section').forEach((section) => {
+            observer.observe(section);
+        });
+
+        // Particle background
+        particlesJS("particles-js", {
+            particles: {
+                number: { value: 80 },
+                color: { value: "#ffffff" },
+                shape: { type: "circle" },
+                opacity: { value: 0.5 },
+                size: { value: 3 },
+                move: { enable: true, speed: 2 }
+            }
+        });
+
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        // Scene setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('three-container').appendChild(renderer.domElement);
+
+        // Create floating molecules
+        function createMolecule() {
+            const group = new THREE.Group();
+            
+            // Create atoms
+            const atomGeometry = new THREE.SphereGeometry(0.3, 32, 32);
+            const materials = [
+                new THREE.MeshPhongMaterial({ color: 0xff0000 }),
+                new THREE.MeshPhongMaterial({ color: 0x00ff00 }),
+                new THREE.MeshPhongMaterial({ color: 0x0000ff })
+            ];
+
+            for (let i = 0; i < 3; i++) {
+                const atom = new THREE.Mesh(atomGeometry, materials[i]);
+                atom.position.set(
+                    Math.cos(i * Math.PI * 2/3) * 0.5,
+                    Math.sin(i * Math.PI * 2/3) * 0.5,
+                    0
+                );
+                group.add(atom);
+            }
+
+            // Create bonds
+            const bondGeometry = new THREE.CylinderGeometry(0.05, 0.05, 1);
+            const bondMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff });
+            
+            for (let i = 0; i < 3; i++) {
+                const bond = new THREE.Mesh(bondGeometry, bondMaterial);
+                bond.position.set(
+                    Math.cos(i * Math.PI * 2/3) * 0.25,
+                    Math.sin(i * Math.PI * 2/3) * 0.25,
+                    0
+                );
+                bond.lookAt(new THREE.Vector3(0, 0, 0));
+                group.add(bond);
+            }
+
+            return group;
+        }
+
+        // Add multiple molecules
+        const molecules = [];
+        for (let i = 0; i < 15; i++) {
+            const molecule = createMolecule();
+            molecule.position.set(
+                Math.random() * 20 - 10,
+                Math.random() * 20 - 10,
+                Math.random() * 20 - 10
+            );
+            molecule.rotation.set(
+                Math.random() * Math.PI,
+                Math.random() * Math.PI,
+                Math.random() * Math.PI
+            );
+            molecules.push(molecule);
+            scene.add(molecule);
+        }
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+        directionalLight.position.set(10, 10, 10);
+        scene.add(directionalLight);
+
+        // Camera position
+        camera.position.z = 15;
+
+        // Controls
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.enableZoom = false;
+
+        // Animation
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Rotate molecules
+            molecules.forEach((molecule, i) => {
+                molecule.rotation.x += 0.001 * (i + 1);
+                molecule.rotation.y += 0.002 * (i + 1);
+                
+                // Add floating motion
+                molecule.position.y += Math.sin(Date.now() * 0.001 + i) * 0.01;
+            });
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Start animation
+        animate();
+    </script>
+</body>
+</html>

@@ -404,11 +404,38 @@
                 <a href="https://info.flagcounter.com/yO6W"><img src="https://s01.flagcounter.com/map/yO6W/size_s/txt_000000/border_CCCCCC/pageviews_0/viewers_0/flags_0/" alt="Flag Counter" border="0"></a>
             </div>
         </section>
-    </main>
 
-    <button class="dark-mode-toggle" onclick="toggleDarkMode()">
-        <i class="fas fa-moon"></i>
-    </button>
+        <section id="game-preview" class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">3D RPG World Preview</h2>
+            <div class="space-y-4">
+                <div class="bg-gray-50 p-6 rounded-lg">
+                    <h3 class="text-lg font-bold mb-3">Interactive 3D World</h3>
+                    <div class="aspect-w-16 aspect-h-9 mb-4">
+                        <iframe src="game.html" 
+                                class="w-full h-96 rounded-lg shadow-lg" 
+                                style="pointer-events: none;">
+                        </iframe>
+                    </div>
+                    <div class="space-y-2">
+                        <p class="text-gray-700"><span class="font-bold">Features:</span></p>
+                        <ul class="list-disc list-inside text-gray-600 space-y-1">
+                            <li>Explore a vast procedurally generated terrain</li>
+                            <li>Interact with dynamic wildlife and environment</li>
+                            <li>Day/night cycle with realistic lighting</li>
+                            <li>Flying birds and roaming animals</li>
+                            <li>Rivers and lakes with realistic water effects</li>
+                        </ul>
+                        <div class="mt-4">
+                            <a href="game.html" 
+                               class="inline-block bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+                                Play Full Version →
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
 
     <div id="three-container"></div>
 
@@ -422,11 +449,6 @@
                 });
             });
         });
-
-        // Dark mode toggle
-        function toggleDarkMode() {
-            document.body.classList.toggle('dark-mode');
-        }
 
         // Intersection Observer for fade-in animations
         const observer = new IntersectionObserver((entries) => {
